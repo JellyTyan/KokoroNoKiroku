@@ -126,14 +126,13 @@ onMounted(async () => {
   align-items: center;
   text-align: center;
   max-width: 1200px;
-  margin: 2rem auto; // Объединяем margin
+  margin: 2rem auto;
   padding: 2rem;
   border-radius: 10px;
   border: 3px solid #00ff9d;
   background: #2a2a2a;
 }
 
-// Добавим медиа-запросы для адаптива
 @media (max-width: 768px) {
   #anime-top-info {
     flex-direction: column !important;
@@ -149,7 +148,7 @@ onMounted(async () => {
   }
 }
 /* --- ANIME DETAIL PAGE --- */
-#anime-detail {
+.anime-detail {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
@@ -170,6 +169,8 @@ onMounted(async () => {
         gap: 1rem;
 
         .info-block {
+          display: flex;
+          flex-direction: column;
           p:first-child {
             font-weight: bold;
             margin-bottom: 0.25rem;
@@ -201,14 +202,12 @@ onMounted(async () => {
         }
 
         #anime-genres {
-          display: flex;
-          flex-wrap: wrap;
-
           .tag {
-            background: #2d2d5a;
-            padding: 0.5rem;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
             margin: 0.3rem;
-            border-radius: 5px;
             display: inline-block;
             font-size: 0.85rem;
           }
