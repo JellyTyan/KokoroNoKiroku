@@ -13,9 +13,18 @@
       <div id="anime-top-info" class="top-info">
         <div id="anime-info" class="info">
           <div id="poster-block" class="poster-block">
-            <img :src="anime?.image" alt="Постер" id="anime-poster" class="poster" />
-            <h1 id="anime-title-en" class="title">{{ anime?.title }}</h1>
-            <h1 id="anime-title-jp" class="title">{{ anime?.title_japanese }}</h1>
+            <img
+              :src="anime?.image"
+              alt="Постер"
+              class="poster"
+              @click="openModal(anime?.large_image)"
+            />
+
+            <ImageModal
+              :show="showImageModal"
+              :src="selectedImage"
+              @close="showImageModal = false"
+            />
           </div>
 
           <div id="anime-format" class="info-block">
@@ -23,36 +32,56 @@
             <p class="description">{{ anime!.type }}</p>
           </div>
 
-          <div id="anime-source" class="info-block">
+          <div id="anime-source" v-if="anime?.source" class="info-block">
             <p>Source</p>
-            <p class="description">{{ anime!.source }}</p>
+            <p class="description">{{ anime?.source }}</p>
           </div>
 
-          <div id="anime-episodes" class="info-block">
-            <p>Episodes</p>
-            <p class="description">{{ anime!.episodes }}</p>
-          </div>
-
-          <div id="anime-status" class="info-block">
+          <div id="anime-status" v-if="anime?.status" class="info-block">
             <p>Status</p>
-            <p class="description">{{ anime!.status }}</p>
+            <p class="description">{{ anime?.status }}</p>
           </div>
 
-          <div id="anime-rating" class="info-block">
+          <div v-if="anime?.startDate" class="info-block">
+            <p>Start Date</p>
+            <p class="description">{{ formattedDate(anime.startDate) }}</p>
+          </div>
+
+          <div v-if="anime?.endDate?.year" class="info-block">
+            <p>End Date</p>
+            <p class="description">{{ formattedDate(anime.endDate) }}</p>
+          </div>
+
+          <div v-if="anime?.nextAiringEpisode" class="info-block">
+            <p>Next episode</p>
+            <p class="description">{{ formatAring(anime?.nextAiringEpisode?.airingTime) }}</p>
+          </div>
+
+          <div id="anime-episodes" v-if="anime?.episodeDuration" class="info-block">
+            <p>Duration</p>
+            <p class="description">{{ anime?.episodeDuration }}</p>
+          </div>
+
+          <div id="anime-episodes" v-if="anime?.totalEpisodes" class="info-block">
+            <p>Current/Total Episodes</p>
+            <p class="description">{{ anime?.currentEpisode + '/' + anime?.totalEpisodes }}</p>
+          </div>
+
+          <div id="anime-rating" v-if="anime?.rating" class="info-block">
             <p>Rating</p>
-            <p class="description">{{ anime!.rating }}</p>
+            <p class="description">{{ anime?.rating }}</p>
           </div>
 
-          <div id="anime-season" class="info-block">
+          <div id="anime-season" v-if="anime?.season" class="info-block">
             <p>Season</p>
-            <p class="description">{{ anime!.season + ' ' + anime!.year }}</p>
+            <p class="description">{{ anime?.season + ' ' + anime?.year }}</p>
           </div>
 
-          <div id="anime-genres" class="info-block">
+          <div id="anime-genres" v-if="anime?.genres" class="info-block">
             <p>Genres</p>
             <span
               class="tag"
-              v-for="genre in anime!.genres"
+              v-for="genre in anime?.genres"
               :key="genre"
               :id="'genre-' + genre.toLowerCase().replace(/\\s+/g, '-')"
             >
@@ -60,8 +89,26 @@
             </span>
           </div>
         </div>
-
-        <p id="anime-synopsis" class="description">{{ anime!.synopsis }}</p>
+        <div class="overview">
+          <div class="anime-titles">
+            <h1 id="anime-title-en" class="title">{{ anime?.title }}</h1>
+            <h3 v-if="anime?.title_japanese" id="anime-title-jp" class="title">
+              {{ anime?.title_japanese }}
+            </h3>
+          </div>
+          <div v-if="anime?.synopsis" class="synopsis">
+            <p v-html="anime?.synopsis"></p>
+          </div>
+          <div v-if="anime?.youtube_embed" class="trailer">
+            <h3>Trailer</h3>
+            <iframe
+              :src="anime?.youtube_embed ? anime.youtube_embed + '?autoplay=1&mute=1' : undefined"
+              frameborder=""
+              width="380"
+              height="214"
+            ></iframe>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -71,6 +118,19 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
+import ImageModal from '@/components/ImageModal.vue'
+
+interface DateObject {
+  year: number | null
+  month: number | null
+  day: number | null
+}
+
+interface NextAiringEpisode {
+  airingTime: number
+  timeUntilAiring: number
+  episode: number
+}
 
 interface Anime {
   id: number
@@ -78,11 +138,20 @@ interface Anime {
   title_english: string
   title_japanese: string
   image: string
-  background: string
+  large_image: string
+  youtube_embed: string
+  score: string
+  scored_by: string
   type: string
   source: string
-  episodes: string
+  episodeDuration: number
+  totalEpisodes: number
+  currentEpisode: number
   status: string
+  releaseDate: string
+  startDate: DateObject
+  endDate: DateObject
+  nextAiringEpisode: NextAiringEpisode | null
   rating: string
   season: string
   year: string
@@ -106,6 +175,35 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+const showImageModal = ref(false)
+const selectedImage = ref('')
+
+const openModal = (imgUrl: string | undefined) => {
+  if (imgUrl) {
+    selectedImage.value = imgUrl
+    showImageModal.value = true
+  }
+}
+
+const formattedDate = (date: DateObject): string => {
+  let formatted = ''
+  if (date.day !== null) formatted += `${date.day}/`
+  if (date.month !== null) formatted += `${date.month}/`
+  if (date.year !== null) formatted += `${date.year}`
+
+  return formatted
+}
+
+const formatAring = (timeAring: number): string => {
+  const date: Date = new Date(timeAring * 1000)
+  const formattedDate: string = date.toLocaleDateString('en-GB', {
+    year: 'numeric',
+    day: 'numeric',
+    month: 'numeric',
+  })
+  return formattedDate
+}
 </script>
 
 <style lang="scss" scoped>
@@ -113,6 +211,7 @@ onMounted(async () => {
   height: 50vh;
   display: grid;
   place-items: center;
+  flex: 1;
 }
 
 .loader {
@@ -131,13 +230,14 @@ onMounted(async () => {
   border-radius: 10px;
   border: 3px solid #00ff9d;
   background: #2a2a2a;
+  flex: 1;
 }
 
 @media (max-width: 768px) {
   #anime-top-info {
     flex-direction: column !important;
 
-    #anime-synopsis {
+    .overview {
       margin-left: 0 !important;
       margin-top: 2rem;
     }
@@ -152,16 +252,13 @@ onMounted(async () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  flex: 1;
 
   #anime-content {
     #anime-top-info {
       display: flex;
       flex-direction: row;
       gap: 2rem;
-
-      .description {
-        margin: 2% 0;
-      }
 
       #anime-info {
         display: flex;
@@ -177,7 +274,7 @@ onMounted(async () => {
           }
 
           .description {
-            color: #ccc;
+            color: grey;
           }
         }
 
@@ -188,16 +285,14 @@ onMounted(async () => {
           text-align: center;
           margin-bottom: 1rem;
 
-          .title {
-            color: #ff69b4;
-            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
-            margin: 0.5rem 0;
-          }
-
           .poster {
-            width: 300px;
-            border-radius: 10px;
-            border: 3px solid #00ff9d;
+            cursor: pointer;
+            transition: transform 0.3s;
+
+            &:hover {
+              transform: scale(1.05);
+              box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+            }
           }
         }
 
@@ -214,11 +309,24 @@ onMounted(async () => {
         }
       }
 
-      #anime-synopsis {
+      .overview {
         flex: 1;
         font-size: 1rem;
         line-height: 1.5;
         margin-left: 2rem;
+
+        .anime-titles {
+          .title {
+            color: #ff69b4;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+            margin: 0.5rem 0;
+            line-height: 70%;
+          }
+        }
+
+        .trailer {
+          margin-top: 40px;
+        }
       }
     }
   }

@@ -1,6 +1,8 @@
+from textwrap import indent
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
+import json
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])
@@ -25,45 +27,80 @@ def trending_anime():
     else:
         return jsonify({"error": "Failed to fetch data from the API"}), 500
 
+
 ANIME_CACHE = {}
 
-@app.route('/api/anime/<int:anime_id>')
+
+@app.route("/api/anime/<int:anime_id>")
 def get_anime(anime_id):
     # Проверяем кеш
     if anime_id in ANIME_CACHE:
         return jsonify(ANIME_CACHE[anime_id])
-    
-    # Запрос к внешнему API (пример для Jikan API)
+
     try:
-        response = requests.get(f'https://api.jikan.moe/v4/anime/{anime_id}')
-        data = response.json()['data']
-        
+        mal_data, consument_data = fetch_data_from_mal_and_consument(anime_id)
+
         # Форматируем данные
         anime_data = {
-            'id': anime_id,
-            'title': data['title'],
-            'title_english': data['title_english'],
-            'title_japanese': data['title_japanese'],
-            'trailer': data['trailer'],
-            'image': data['images']['jpg']['image_url'],
-            'background': data['background'],
-            'type': data['type'],
-            'source': data['source'],
-            'episodes': data['episodes'],
-            'status': data['status'],
-            'rating': data['rating'],
-            'season': data['season'],
-            'year': data['year'],
-            'synopsis': data['synopsis'],
-            'genres': [genre['name'] for genre in data['genres']],
+            "id": anime_id,
+            "title": mal_data.get("title"),
+            "title_english": consument_data.get("title", {}).get("english"),
+            "title_japanese": consument_data.get("title", {}).get("romaji"),
+            "image": mal_data.get("images", {}).get("webp", {}).get("image_url"),
+            "large_image": mal_data.get("images", {}).get("webp", {}).get("large_image_url"),
+            "youtube_embed": mal_data.get("trailer", {}).get("embed_url"),
+            "score": mal_data.get("score"),
+            "scored_by": mal_data.get("scored_by"),
+            "type": mal_data.get("type"),
+            "source": mal_data.get("source"),
+            "episodeDuration": consument_data.get("duration"),
+            "totalEpisodes": consument_data.get("totalEpisodes"),
+            "currentEpisode": consument_data.get("currentEpisode"),
+            "status": consument_data.get("status"),
+            "releaseDate": consument_data.get("releaseDate"),
+            "startDate": consument_data.get("startDate"),
+            "endDate": consument_data.get("endDate"),
+            "nextAiringEpisode": consument_data.get("nextAiringEpisode"),
+            "rating": mal_data.get("rating"),
+            "season": mal_data.get("season"),
+            "year": mal_data.get("year"),
+            "synopsis": consument_data.get("description"),
+            "genres": [genre.get("name") for genre in mal_data.get("genres", [])],
         }
-        
+
         # КешируемIMEIME_CACHE[anime_id] = anime_data
         return jsonify(anime_data)
-    
+
     except Exception as e:
         print(e)
-        return jsonify({'error': 'Anime not found'}), 404
+        return jsonify({"error": "Anime not found"}), 404
+
+def fetch_mal(anime_id):
+    """
+    Функция для получения данных с MyAnimeList по ID
+    """
+    r = requests.get(f"https://api.jikan.moe/v4/anime/{anime_id}")
+    return r.json()["data"]
+
+def fetch_consument_by_name(anime_name):
+    """
+    Функция для поиска аниме в Consument API (Anilist) по названию
+    """
+    r = requests.get(f"http://0.0.0.0:3000/meta/anilist/{anime_name}")
+    return r.json()
+
+def fetch_data_from_mal_and_consument(anime_id):
+    """
+    Получаем данные сначала с MyAnimeList, затем с Consument API, используя название
+    """
+    mal_data = fetch_mal(anime_id)
+    anime_name = mal_data["title"]
+
+    consument_data = fetch_consument_by_name(anime_name)
+
+    consument_anime_request = requests.get(f"http://0.0.0.0:3000/meta/anilist/info/{consument_data["results"][0]["id"]}")
+
+    return mal_data, consument_anime_request.json()
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
