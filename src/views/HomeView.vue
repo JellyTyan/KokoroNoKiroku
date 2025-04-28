@@ -38,8 +38,8 @@
     <div>
       <h1>Top Anime Series</h1>
       <div class="animelist">
-        <div v-for="anime in TopAnimeByPopularity" :key="anime.mal_id">
-          <router-link :to="'/anime/' + anime.mal_id" class="anime-card">
+        <div v-for="anime in TopAnimeByPopularity" :key="anime.mal_id" class="anime-card">
+          <router-link :to="'/anime/' + anime.mal_id">
             <img :src="anime.cover" alt="" />
             <h4>{{ anime.title }}</h4>
           </router-link>
@@ -50,8 +50,8 @@
     <div>
       <h1>Upcoming Anime</h1>
       <div class="animelist">
-        <div v-for="anime in UpcomingAnime" :key="anime.mal_id">
-          <router-link :to="'/anime/' + anime.mal_id" class="anime-card">
+        <div v-for="anime in UpcomingAnime" :key="anime.mal_id" class="anime-card">
+          <router-link :to="'/anime/' + anime.mal_id">
             <img :src="anime.cover" alt="" />
             <h4>{{ anime.title }}</h4>
           </router-link>
@@ -62,8 +62,8 @@
     <div>
       <h1>Airing Anime</h1>
       <div class="animelist">
-        <div v-for="anime in AiringAnime" :key="anime.mal_id">
-          <router-link :to="'/anime/' + anime.mal_id" class="anime-card">
+        <div v-for="anime in AiringAnime" :key="anime.mal_id" class="anime-card">
+          <router-link :to="'/anime/' + anime.mal_id">
             <img :src="anime.cover" alt="" />
             <h4>{{ anime.title }}</h4>
           </router-link>
@@ -96,17 +96,6 @@
     margin: 20px;
   }
 
-  a {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-  }
-  a:hover {
-    background-color: #4500b5;
-  }
-
   .features-grid {
     display: grid;
     grid-gap: 70px 60px;
@@ -117,10 +106,35 @@
 }
 
 .top-anime {
-  width: 100%;
   max-width: 1140px;
   margin: 0 auto;
   padding: 0;
+
+  .anime-card {
+    display: block;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+    padding: 10px;
+
+    a {
+      text-decoration: none;
+    }
+
+    h4 {
+      margin-top: 10px;
+      text-align: center;
+      color: white;
+      text-decoration: none;
+    }
+  }
+
+  .anime-card:hover {
+    background-color: rgba(3, 255, 157, 0.3);
+  }
+
+  /* .anime-card:hover {
+    background-color: #4500b5;
+  } */
 
   > div {
     margin-top: 40px;

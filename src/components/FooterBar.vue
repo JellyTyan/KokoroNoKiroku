@@ -56,6 +56,7 @@ footer {
   height: 150px;
   background-color: #16423c;
   margin-top: 50px;
+  width: 100%;
 }
 .neon-timer {
   background: #16423c;

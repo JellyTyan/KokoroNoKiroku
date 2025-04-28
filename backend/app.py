@@ -68,7 +68,6 @@ def get_anime(anime_id):
             "genres": [genre.get("name") for genre in mal_data.get("genres", [])],
         }
 
-        # КешируемIMEIME_CACHE[anime_id] = anime_data
         return jsonify(anime_data)
 
     except Exception as e:
