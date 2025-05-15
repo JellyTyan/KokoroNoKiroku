@@ -28,59 +28,63 @@
           </div>
 
           <div id="anime-format" class="info-block">
-            <p>Format</p>
-            <p class="description">{{ anime!.type }}</p>
+            <p class="category-name">Format</p>
+            <p class="category-description">{{ anime!.type }}</p>
           </div>
 
           <div id="anime-source" v-if="anime?.source" class="info-block">
-            <p>Source</p>
-            <p class="description">{{ anime?.source }}</p>
+            <p class="category-name">Source</p>
+            <p class="category-description">{{ anime?.source }}</p>
           </div>
 
           <div id="anime-status" v-if="anime?.status" class="info-block">
-            <p>Status</p>
-            <p class="description">{{ anime?.status }}</p>
+            <p class="category-name">Status</p>
+            <p class="category-description">{{ anime?.status }}</p>
           </div>
 
           <div v-if="anime?.startDate" class="info-block">
-            <p>Start Date</p>
-            <p class="description">{{ formattedDate(anime.startDate) }}</p>
+            <p class="category-name">Start Date</p>
+            <p class="category-description">{{ formattedDate(anime.startDate) }}</p>
           </div>
 
           <div v-if="anime?.endDate?.year" class="info-block">
-            <p>End Date</p>
-            <p class="description">{{ formattedDate(anime.endDate) }}</p>
+            <p class="category-name">End Date</p>
+            <p class="category-description">{{ formattedDate(anime.endDate) }}</p>
           </div>
 
           <div v-if="anime?.nextAiringEpisode" class="info-block">
-            <p>Next episode</p>
-            <p class="description">{{ formatAring(anime?.nextAiringEpisode?.airingTime) }}</p>
+            <p class="category-name">Next episode</p>
+            <p class="category-description">
+              {{ formatAring(anime?.nextAiringEpisode?.airingTime) }}
+            </p>
           </div>
 
           <div id="anime-episodes" v-if="anime?.episodeDuration" class="info-block">
-            <p>Duration</p>
-            <p class="description">{{ anime?.episodeDuration }}</p>
+            <p class="category-name">Duration</p>
+            <p class="category-description">{{ anime?.episodeDuration }}</p>
           </div>
 
           <div id="anime-episodes" v-if="anime?.totalEpisodes" class="info-block">
-            <p>Current/Total Episodes</p>
-            <p class="description">{{ anime?.currentEpisode + '/' + anime?.totalEpisodes }}</p>
+            <p class="category-name">Current/Total Episodes</p>
+            <p class="category-description">
+              {{ anime?.currentEpisode + '/' + anime?.totalEpisodes }}
+            </p>
           </div>
 
           <div id="anime-rating" v-if="anime?.rating" class="info-block">
-            <p>Rating</p>
-            <p class="description">{{ anime?.rating }}</p>
+            <p class="category-name">Rating</p>
+            <p class="category-description">{{ anime?.rating }}</p>
           </div>
 
           <div id="anime-season" v-if="anime?.season" class="info-block">
-            <p>Season</p>
-            <p class="description">{{ anime?.season + ' ' + anime?.year }}</p>
+            <p class="category-name">Season</p>
+            <p class="category-description">{{ anime?.season + ' ' + anime?.year }}</p>
           </div>
 
           <div id="anime-genres" v-if="anime?.genres" class="info-block">
-            <p>Genres</p>
+            <p class="category-name">Genres</p>
             <span
-              class="tag"
+              class="category-description"
               v-for="genre in anime?.genres"
               :key="genre"
               :id="'genre-' + genre.toLowerCase().replace(/\\s+/g, '-')"
@@ -272,8 +276,11 @@ const formatAring = (timeAring: number): string => {
             font-weight: bold;
             margin-bottom: 0.25rem;
           }
-
-          .description {
+          .category-name {
+            margin: 0;
+          }
+          .category-description {
+            margin: 0;
             color: grey;
           }
         }
@@ -293,18 +300,6 @@ const formatAring = (timeAring: number): string => {
               transform: scale(1.05);
               box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
             }
-          }
-        }
-
-        #anime-genres {
-          .tag {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-
-            margin: 0.3rem;
-            display: inline-block;
-            font-size: 0.85rem;
           }
         }
       }

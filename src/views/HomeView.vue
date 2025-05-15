@@ -1,167 +1,104 @@
 <template>
-  <div class="home">
-    <h1>KokoroNoKiroku</h1>
-    <p>Your anime-impressions story!</p>
-    <div class="features-grid">
-      <div>
-        <h2>Personal anime list</h2>
-        <p>
-          Keep track of which anime you've watched, completed, dropped, or are planning. All in one
-          convenient place!
-        </p>
+  <div class="mx-auto my-[50px] text-center p-[50px] bg-[#16423c] rounded-[20px] max-w-[1100px]">
+    <h1 class="text-[3rem] text-[whitesmoke] my-[10px]">KokoroNoKiroku</h1>
+    <p class="text-[1.2rem] text-[#98c1ae] my-[10px]">Your anime-impressions story!</p>
+    <div
+      class="grid justify-center text-left gap-x-[60px]"
+      style="grid-template-columns: repeat(2, minmax(300px, 400px))"
+    >
+      <div class="flex row">
+        <img src="../assets/images/checklist-icon.png" alt="" width="50px" height="50px" />
+        <div>
+          <h2 class="text-[2rem] text-[whitesmoke] my-[20px]">Personal anime list</h2>
+          <p class="text-[1.2rem] text-[#98c1ae] my-[20px]">
+            Keep track of which anime you've watched, completed, dropped, or are planning. All in
+            one convenient place!
+          </p>
+        </div>
       </div>
-      <div>
-        <h2>Personalized recommendations</h2>
-        <p>
-          Based on your ratings and preferences, the site will suggest anime that you're sure to get
-          into.
-        </p>
+      <div class="flex row">
+        <img src="../assets/images/recomend-icon.png" alt="" width="50px" height="50px" />
+        <div>
+          <h2 class="text-[2rem] text-[whitesmoke] my-[20px]">Personalized recommendations</h2>
+          <p class="text-[1.2rem] text-[#98c1ae] my-[20px]">
+            Based on your ratings and preferences, the site will suggest anime that you're sure to
+            get into.
+          </p>
+        </div>
       </div>
-      <div>
-        <h2>Statistics and achievements</h2>
-        <p>
-          Keep track of your activity: how many hours spent, how many titles watched, favorite
-          genres and studios. Unlock achievements for watching!
-        </p>
+      <div class="flex row">
+        <img src="../assets/images/stats-icon.png" alt="" width="50px" height="50px" />
+        <div>
+          <h2 class="text-[2rem] text-[whitesmoke] my-[20px]">Statistics and achievements</h2>
+          <p class="text-[1.2rem] text-[#98c1ae] my-[20px]">
+            Keep track of your activity: how many hours spent, how many titles watched, favorite
+            genres and studios. Unlock achievements for watching!
+          </p>
+        </div>
       </div>
-      <div>
-        <h2>Services integrations</h2>
-        <p>
-          Connect your lists from MyAnimeList, AniList, Shikimori and other platforms to bring all
-          your anime together in one place and compare them!
-        </p>
+      <div class="flex row">
+        <img src="../assets/images/services-icon.png" alt="" width="50px" height="50px" />
+        <div>
+          <h2 class="text-[2rem] text-[whitesmoke] my-[20px]">Services integrations</h2>
+          <p class="text-[1.2rem] text-[#98c1ae] my-[20px]">
+            Connect your lists from MyAnimeList, AniList, Shikimori and other platforms to bring all
+            your anime together in one place and compare them!
+          </p>
+        </div>
       </div>
     </div>
   </div>
 
-  <section class="top-anime">
-    <div>
-      <h1>Top Anime Series</h1>
-      <div class="animelist">
-        <div v-for="anime in TopAnimeByPopularity" :key="anime.mal_id" class="anime-card">
-          <router-link :to="'/anime/' + anime.mal_id">
-            <img :src="anime.cover" alt="" />
-            <h4>{{ anime.title }}</h4>
+  <section class="max-w-[1140px] mx-auto">
+    <div class="mt-[40px]">
+      <h1 class="text-[2rem] text-[#16423c] mb-4">Top Anime Series</h1>
+      <div class="mt-[20px] flex flex-row justify-between">
+        <div
+          v-for="anime in TopAnimeByPopularity"
+          :key="anime.mal_id"
+          class="block p-[10px] rounded-[8px] transition-colors duration-300 hover:bg-[rgba(3,255,157,0.3)] max-w-[200px]"
+        >
+          <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
+            <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
+            <h4 class="text-white mt-[10px]">{{ anime.title }}</h4>
           </router-link>
         </div>
       </div>
     </div>
 
-    <div>
-      <h1>Upcoming Anime</h1>
-      <div class="animelist">
-        <div v-for="anime in UpcomingAnime" :key="anime.mal_id" class="anime-card">
-          <router-link :to="'/anime/' + anime.mal_id">
-            <img :src="anime.cover" alt="" />
-            <h4>{{ anime.title }}</h4>
+    <div class="mt-[40px]">
+      <h1 class="text-[2rem] text-[#16423c] mb-4">Upcoming Anime</h1>
+      <div class="mt-[20px] flex flex-row justify-between">
+        <div
+          v-for="anime in UpcomingAnime"
+          :key="anime.mal_id"
+          class="block p-[10px] rounded-[8px] transition-colors duration-300 hover:bg-[rgba(3,255,157,0.3)] max-w-[200px]"
+        >
+          <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
+            <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
+            <h4 class="text-white mt-[10px]">{{ anime.title }}</h4>
           </router-link>
         </div>
       </div>
     </div>
 
-    <div>
-      <h1>Airing Anime</h1>
-      <div class="animelist">
-        <div v-for="anime in AiringAnime" :key="anime.mal_id" class="anime-card">
-          <router-link :to="'/anime/' + anime.mal_id">
-            <img :src="anime.cover" alt="" />
-            <h4>{{ anime.title }}</h4>
+    <div class="mt-[40px]">
+      <h1 class="text-[2rem] text-[#16423c] mb-4">Airing Anime</h1>
+      <div class="mt-[20px] flex flex-row justify-between">
+        <div
+          v-for="anime in AiringAnime"
+          :key="anime.mal_id"
+          class="block p-[10px] rounded-[8px] transition-colors duration-300 hover:bg-[rgba(3,255,157,0.3)] max-w-[200px]"
+        >
+          <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
+            <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
+            <h4 class="text-white mt-[10px]">{{ anime.title }}</h4>
           </router-link>
         </div>
       </div>
     </div>
   </section>
 </template>
-
-<style scoped>
-.home {
-  margin: 50px auto;
-  text-align: center;
-  padding: 50px;
-  background-color: #16423c;
-  border: none;
-  border-radius: 20px;
-  max-width: 1100px;
-
-  h1,
-  h2 {
-    /* font-size: 2rem; */
-    color: whitesmoke;
-    margin: 20px;
-  }
-
-  p {
-    font-size: 1.2rem;
-    color: #98c1ae;
-    margin: 20px;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-gap: 70px 60px;
-    grid-template-columns: repeat(2, minmax(300px, 400px));
-    justify-content: center;
-    text-align: start;
-  }
-}
-
-.top-anime {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 0;
-
-  .anime-card {
-    display: block;
-    border-radius: 8px;
-    transition: background-color 0.3s;
-    padding: 10px;
-
-    a {
-      text-decoration: none;
-    }
-
-    h4 {
-      margin-top: 10px;
-      text-align: center;
-      color: white;
-      text-decoration: none;
-    }
-  }
-
-  .anime-card:hover {
-    background-color: rgba(3, 255, 157, 0.3);
-  }
-
-  /* .anime-card:hover {
-    background-color: #4500b5;
-  } */
-
-  > div {
-    margin-top: 40px;
-  }
-
-  .animelist {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-
-    > div {
-      max-width: 200px;
-    }
-
-    h4 {
-      color: #16423c;
-      padding: 0;
-    }
-
-    img {
-      width: 200px;
-      height: 280px;
-    }
-  }
-}
-</style>
 
 <script>
 import { ref, onMounted } from 'vue'
