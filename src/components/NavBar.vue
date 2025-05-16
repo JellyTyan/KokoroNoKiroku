@@ -7,8 +7,8 @@
         <img src="../assets/images/icon.png" alt="logo" width="60" />
       </router-link>
 
-      <div class="relative">
-        <button @click="toggleDropdown" class="text-lg font-bold">Аниме</button>
+      <div class="relative" @mouseenter="isOpen = true" @mouseleave="isOpen = false">
+        <button class="text-lg font-bold">Anime</button>
 
         <transition name="fade">
           <div
@@ -16,9 +16,8 @@
             class="absolute mt-2 w-48 bg-white text-black border rounded shadow z-50"
           >
             <ul>
-              <li class="p-2 hover:bg-gray-100 cursor-pointer">Список 1</li>
-              <li class="p-2 hover:bg-gray-100 cursor-pointer">Список 2</li>
-              <li class="p-2 hover:bg-gray-100 cursor-pointer">Список 3</li>
+              <li class="p-2 hover:bg-gray-100 cursor-pointer">Top anime</li>
+              <li class="p-2 hover:bg-gray-100 cursor-pointer">Genres</li>
             </ul>
           </div>
         </transition>
@@ -61,7 +60,7 @@
     </div>
   </nav>
 
-  <router-view></router-view>
+  <router-view />
 </template>
 
 <style scoped>
@@ -91,9 +90,5 @@ const toggleMode = () => {
 
 const handleSubmit = () => {
   alert(isLoginMode.value ? 'Вход выполнен!' : 'Регистрация успешна!')
-}
-
-const toggleDropdown = () => {
-  isOpen.value = !isOpen.value
 }
 </script>

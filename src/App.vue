@@ -5,8 +5,6 @@
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Iansui&display=swap');
-@import 'tailwindcss';
-
 html,
 body {
   margin: 0;

@@ -1,13 +1,17 @@
 <template>
-  <div class="mx-auto my-[50px] text-center p-[50px] bg-[#16423c] rounded-[20px] max-w-[1100px]">
+  <div class="mx-auto my-[50px] text-center p-[50px] bg-[#16423c] rounded-[20px] max-w-[1300px]">
     <h1 class="text-[3rem] text-[whitesmoke] my-[10px]">KokoroNoKiroku</h1>
     <p class="text-[1.2rem] text-[#98c1ae] my-[10px]">Your anime-impressions story!</p>
     <div
-      class="grid justify-center text-left gap-x-[60px]"
-      style="grid-template-columns: repeat(2, minmax(300px, 400px))"
+      class="grid justify-center text-left gap-x-[60px] gap-y-[40px]"
+      style="grid-template-columns: repeat(2, minmax(300px, 450px))"
     >
-      <div class="flex row">
-        <img src="../assets/images/checklist-icon.png" alt="" width="50px" height="50px" />
+      <div class="flex items-center gap-x-4">
+        <img
+          src="../assets/images/checklist-icon.png"
+          alt=""
+          class="w-[100px] h-[140px] flex-shrink-0 mt-[20px]"
+        />
         <div>
           <h2 class="text-[2rem] text-[whitesmoke] my-[20px]">Personal anime list</h2>
           <p class="text-[1.2rem] text-[#98c1ae] my-[20px]">
@@ -16,8 +20,13 @@
           </p>
         </div>
       </div>
-      <div class="flex row">
-        <img src="../assets/images/recomend-icon.png" alt="" width="50px" height="50px" />
+
+      <div class="flex items-center gap-x-4">
+        <img
+          src="../assets/images/recomend-icon.png"
+          alt=""
+          class="w-[100px] h-[100px] flex-shrink-0 mt-[20px]"
+        />
         <div>
           <h2 class="text-[2rem] text-[whitesmoke] my-[20px]">Personalized recommendations</h2>
           <p class="text-[1.2rem] text-[#98c1ae] my-[20px]">
@@ -26,8 +35,13 @@
           </p>
         </div>
       </div>
-      <div class="flex row">
-        <img src="../assets/images/stats-icon.png" alt="" width="50px" height="50px" />
+
+      <div class="flex items-center gap-x-4">
+        <img
+          src="../assets/images/stats-icon.png"
+          alt=""
+          class="w-[100px] h-[70px] flex-shrink-0 mt-[20px]"
+        />
         <div>
           <h2 class="text-[2rem] text-[whitesmoke] my-[20px]">Statistics and achievements</h2>
           <p class="text-[1.2rem] text-[#98c1ae] my-[20px]">
@@ -36,8 +50,13 @@
           </p>
         </div>
       </div>
-      <div class="flex row">
-        <img src="../assets/images/services-icon.png" alt="" width="50px" height="50px" />
+
+      <div class="flex items-center gap-x-4">
+        <img
+          src="../assets/images/services-icon.png"
+          alt=""
+          class="w-[100px] h-[110px] flex-shrink-0 mt-[20px]"
+        />
         <div>
           <h2 class="text-[2rem] text-[whitesmoke] my-[20px]">Services integrations</h2>
           <p class="text-[1.2rem] text-[#98c1ae] my-[20px]">
@@ -60,7 +79,7 @@
         >
           <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
             <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-            <h4 class="text-white mt-[10px]">{{ anime.title }}</h4>
+            <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
           </router-link>
         </div>
       </div>
@@ -76,7 +95,7 @@
         >
           <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
             <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-            <h4 class="text-white mt-[10px]">{{ anime.title }}</h4>
+            <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
           </router-link>
         </div>
       </div>
@@ -92,7 +111,7 @@
         >
           <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
             <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-            <h4 class="text-white mt-[10px]">{{ anime.title }}</h4>
+            <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
           </router-link>
         </div>
       </div>
