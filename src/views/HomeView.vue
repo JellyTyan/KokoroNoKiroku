@@ -75,7 +75,7 @@
         <div
           v-for="anime in TopAnimeByPopularity"
           :key="anime.mal_id"
-          class="block p-[10px] rounded-[8px] transition-colors duration-300 hover:bg-[rgba(3,255,157,0.3)] max-w-[200px]"
+          class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
         >
           <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
             <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
@@ -91,7 +91,7 @@
         <div
           v-for="anime in UpcomingAnime"
           :key="anime.mal_id"
-          class="block p-[10px] rounded-[8px] transition-colors duration-300 hover:bg-[rgba(3,255,157,0.3)] max-w-[200px]"
+          class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
         >
           <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
             <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
@@ -107,7 +107,7 @@
         <div
           v-for="anime in AiringAnime"
           :key="anime.mal_id"
-          class="block p-[10px] rounded-[8px] transition-colors duration-300 hover:bg-[rgba(3,255,157,0.3)] max-w-[200px]"
+          class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
         >
           <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
             <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />

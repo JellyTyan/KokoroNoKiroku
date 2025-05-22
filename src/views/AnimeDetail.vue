@@ -1,117 +1,125 @@
 <template>
-  <div v-if="loading" class="loading">
-    <div class="loader">Loading moe...</div>
+  <!-- Loading -->
+  <div v-if="loading" class="flex justify-center items-center h-full py-12">
+    <div class="font-f">Loading moe...</div>
   </div>
 
-  <div v-else-if="error" class="error">
-    <h2>404 Nya~</h2>
-    <p>Anime with ID {{ $route.params.id }} not found (╥_╥)</p>
+  <!-- Error -->
+  <div
+    v-else-if="error"
+    class="flex flex-col items-center text-center max-w-[1200px] mx-auto p-8 my-12"
+  >
+    <h1 class="text-6xl font-bold mb-4">404 Nya~</h1>
+    <p class="text-2xl">
+      Anime with ID <b>{{ $route.params.id }}</b> not found (╥_╥)
+    </p>
   </div>
 
-  <div v-else id="anime-detail" class="anime-detail">
-    <div id="anime-content" class="content">
-      <div id="anime-top-info" class="top-info">
-        <div id="anime-info" class="info">
-          <div id="poster-block" class="poster-block">
-            <img
-              :src="anime?.image"
-              alt="Постер"
-              class="poster"
-              @click="openModal(anime?.large_image)"
-            />
+  <!-- Main Content -->
+  <div v-else class="flex flex-row gap-8 justify-center max-w-[1200px] mx-auto mt-8">
+    <div class="flex flex-row gap-8">
+      <!-- Left column -->
+      <div class="flex flex-col gap-4">
+        <div id="poster-block" class="flex flex-col text-center items-center">
+          <img
+            :src="anime?.image"
+            id="poster"
+            alt="Poster"
+            @click="openModal(anime?.large_image)"
+          />
 
-            <ImageModal
-              :show="showImageModal"
-              :src="selectedImage"
-              @close="showImageModal = false"
-            />
-          </div>
-
-          <div id="anime-format" class="info-block">
-            <p class="category-name">Format</p>
-            <p class="category-description">{{ anime!.type }}</p>
-          </div>
-
-          <div id="anime-source" v-if="anime?.source" class="info-block">
-            <p class="category-name">Source</p>
-            <p class="category-description">{{ anime?.source }}</p>
-          </div>
-
-          <div id="anime-status" v-if="anime?.status" class="info-block">
-            <p class="category-name">Status</p>
-            <p class="category-description">{{ anime?.status }}</p>
-          </div>
-
-          <div v-if="anime?.startDate" class="info-block">
-            <p class="category-name">Start Date</p>
-            <p class="category-description">{{ formattedDate(anime.startDate) }}</p>
-          </div>
-
-          <div v-if="anime?.endDate?.year" class="info-block">
-            <p class="category-name">End Date</p>
-            <p class="category-description">{{ formattedDate(anime.endDate) }}</p>
-          </div>
-
-          <div v-if="anime?.nextAiringEpisode" class="info-block">
-            <p class="category-name">Next episode</p>
-            <p class="category-description">
-              {{ formatAring(anime?.nextAiringEpisode?.airingTime) }}
-            </p>
-          </div>
-
-          <div id="anime-episodes" v-if="anime?.episodeDuration" class="info-block">
-            <p class="category-name">Duration</p>
-            <p class="category-description">{{ anime?.episodeDuration }}</p>
-          </div>
-
-          <div id="anime-episodes" v-if="anime?.totalEpisodes" class="info-block">
-            <p class="category-name">Current/Total Episodes</p>
-            <p class="category-description">
-              {{ anime?.currentEpisode + '/' + anime?.totalEpisodes }}
-            </p>
-          </div>
-
-          <div id="anime-rating" v-if="anime?.rating" class="info-block">
-            <p class="category-name">Rating</p>
-            <p class="category-description">{{ anime?.rating }}</p>
-          </div>
-
-          <div id="anime-season" v-if="anime?.season" class="info-block">
-            <p class="category-name">Season</p>
-            <p class="category-description">{{ anime?.season + ' ' + anime?.year }}</p>
-          </div>
-
-          <div id="anime-genres" v-if="anime?.genres" class="info-block">
-            <p class="category-name">Genres</p>
-            <span
-              class="category-description"
-              v-for="genre in anime?.genres"
-              :key="genre"
-              :id="'genre-' + genre.toLowerCase().replace(/\\s+/g, '-')"
-            >
-              {{ genre }}
-            </span>
-          </div>
+          <ImageModal :show="showImageModal" :src="selectedImage" @close="showImageModal = false" />
         </div>
-        <div class="overview">
-          <div class="anime-titles">
-            <h1 id="anime-title-en" class="title">{{ anime?.title }}</h1>
-            <h3 v-if="anime?.title_japanese" id="anime-title-jp" class="title">
-              {{ anime?.title_japanese }}
-            </h3>
-          </div>
-          <div v-if="anime?.synopsis" class="synopsis">
-            <p v-html="anime?.synopsis"></p>
-          </div>
-          <div v-if="anime?.youtube_embed" class="trailer">
-            <h3>Trailer</h3>
-            <iframe
-              :src="anime?.youtube_embed ? anime.youtube_embed + '?autoplay=1&mute=1' : undefined"
-              frameborder=""
-              width="380"
-              height="214"
-            ></iframe>
-          </div>
+
+        <!-- Info blocks -->
+        <div class="info-block">
+          <p class="category-name">Format</p>
+          <p class="category-description">{{ anime!.type }}</p>
+        </div>
+
+        <div v-if="anime?.source" class="info-block">
+          <p class="category-name">Source</p>
+          <p class="category-description">{{ anime.source }}</p>
+        </div>
+
+        <div v-if="anime?.status" class="info-block">
+          <p class="category-name">Status</p>
+          <p class="category-description">{{ anime.status }}</p>
+        </div>
+
+        <div v-if="anime?.startDate" class="info-block">
+          <p class="category-name">Start Date</p>
+          <p class="category-description">{{ formattedDate(anime.startDate) }}</p>
+        </div>
+
+        <div v-if="anime?.endDate?.year" class="info-block">
+          <p class="category-name">End Date</p>
+          <p class="category-description">{{ formattedDate(anime.endDate) }}</p>
+        </div>
+
+        <div v-if="anime?.nextAiringEpisode" class="info-block">
+          <p class="category-name">Next episode</p>
+          <p class="category-description">
+            {{ formatAring(anime.nextAiringEpisode.airingTime) }}
+          </p>
+        </div>
+
+        <div v-if="anime?.episodeDuration" class="info-block">
+          <p class="category-name">Duration</p>
+          <p class="category-description">{{ anime.episodeDuration }}</p>
+        </div>
+
+        <div v-if="anime?.totalEpisodes" class="info-block">
+          <p class="category-name">Current/Total Episodes</p>
+          <p class="category-description">
+            {{ anime.currentEpisode + '/' + anime.totalEpisodes }}
+          </p>
+        </div>
+
+        <div v-if="anime?.rating" class="info-block">
+          <p class="category-name">Rating</p>
+          <p class="category-description">{{ anime.rating }}</p>
+        </div>
+
+        <div v-if="anime?.season" class="info-block">
+          <p class="category-name">Season</p>
+          <p class="category-description">{{ anime.season + ' ' + anime.year }}</p>
+        </div>
+
+        <div v-if="anime?.genres" class="info-block" id="anime-genres">
+          <p class="category-name">Genres</p>
+          <span
+            class="category-description"
+            v-for="genre in anime.genres"
+            :key="genre"
+            :id="'genre-' + genre.toLowerCase().replace(/\\s+/g, '-')"
+          >
+            {{ genre }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="overview">
+        <div class="anime-titles">
+          <h1 id="anime-title-en" class="title text-3xl">{{ anime?.title }}</h1>
+          <h3 v-if="anime?.title_japanese" id="anime-title-jp" class="title">
+            {{ anime.title_japanese }}
+          </h3>
+        </div>
+
+        <div v-if="anime?.synopsis" class="synopsis">
+          <p v-html="anime.synopsis"></p>
+        </div>
+
+        <div v-if="anime?.youtube_embed" class="trailer">
+          <h3>Trailer</h3>
+          <iframe
+            :src="anime.youtube_embed + '?autoplay=1&mute=1'"
+            frameborder="0"
+            width="380"
+            height="214"
+          ></iframe>
         </div>
       </div>
     </div>
@@ -195,48 +203,20 @@ const formattedDate = (date: DateObject): string => {
   if (date.day !== null) formatted += `${date.day}/`
   if (date.month !== null) formatted += `${date.month}/`
   if (date.year !== null) formatted += `${date.year}`
-
   return formatted
 }
 
 const formatAring = (timeAring: number): string => {
-  const date: Date = new Date(timeAring * 1000)
-  const formattedDate: string = date.toLocaleDateString('en-GB', {
+  const date = new Date(timeAring * 1000)
+  return date.toLocaleDateString('en-GB', {
     year: 'numeric',
     day: 'numeric',
     month: 'numeric',
   })
-  return formattedDate
 }
 </script>
 
-<style lang="scss" scoped>
-.loading {
-  height: 50vh;
-  display: grid;
-  place-items: center;
-  flex: 1;
-}
-
-.loader {
-  font-family: 'Press Start 2P', cursive;
-  animation: glitch 1s infinite;
-}
-
-.error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 2rem;
-  border-radius: 10px;
-  border: 3px solid #00ff9d;
-  background: #2a2a2a;
-  flex: 1;
-}
-
+<style scoped lang="scss">
 @media (max-width: 768px) {
   #anime-top-info {
     flex-direction: column !important;
@@ -251,79 +231,57 @@ const formatAring = (timeAring: number): string => {
     width: 200px !important;
   }
 }
-/* --- ANIME DETAIL PAGE --- */
-.anime-detail {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  flex: 1;
 
-  #anime-content {
-    #anime-top-info {
-      display: flex;
-      flex-direction: row;
-      gap: 2rem;
+.info-block {
+  display: flex;
+  flex-direction: column;
 
-      #anime-info {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+  p:first-child {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
 
-        .info-block {
-          display: flex;
-          flex-direction: column;
-          p:first-child {
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-          }
-          .category-name {
-            margin: 0;
-          }
-          .category-description {
-            margin: 0;
-            color: grey;
-          }
-        }
+  .category-name {
+    margin: 0;
+  }
 
-        #poster-block {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          margin-bottom: 1rem;
+  .category-description {
+    margin: 0;
+    color: grey;
+  }
+}
 
-          .poster {
-            cursor: pointer;
-            transition: transform 0.3s;
+#poster-block {
+  margin-bottom: 1rem;
 
-            &:hover {
-              transform: scale(1.05);
-              box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
-            }
-          }
-        }
-      }
+  #poster {
+    cursor: pointer;
+    transition: transform 0.3s;
 
-      .overview {
-        flex: 1;
-        font-size: 1rem;
-        line-height: 1.5;
-        margin-left: 2rem;
-
-        .anime-titles {
-          .title {
-            color: #ff69b4;
-            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
-            margin: 0.5rem 0;
-            line-height: 70%;
-          }
-        }
-
-        .trailer {
-          margin-top: 40px;
-        }
-      }
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
     }
+  }
+}
+
+.overview {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-left: 2rem;
+
+  .anime-titles {
+    .title {
+      color: #ff69b4;
+      text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+      margin: 0.5rem 0;
+      line-height: 70%;
+    }
+  }
+
+  .trailer {
+    margin-top: 40px;
   }
 }
 </style>

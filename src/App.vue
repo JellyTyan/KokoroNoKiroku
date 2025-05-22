@@ -1,6 +1,13 @@
 <template>
-  <NavBar />
-  <FooterBar />
+  <div class="flex flex-col min-h-screen">
+    <NavBar />
+
+    <main class="flex-1">
+      <router-view />
+    </main>
+
+    <FooterBar />
+  </div>
 </template>
 
 <style>

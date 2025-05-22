@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="flex flex-row justify-around items-center max-h-[100px] bg-[#16423c] text-white px-4 py-2"
+    class="flex flex-row justify-around items-center max-h-[100px] bg-[#16423c] text-white px-4 py-2 shadow-xl"
   >
     <div class="flex flex-row items-center space-x-5">
       <router-link to="/">
@@ -13,11 +13,19 @@
         <transition name="fade">
           <div
             v-if="isOpen"
-            class="absolute mt-2 w-48 bg-white text-black border rounded shadow z-50"
+            class="absolute mt-2 w-48 bg-white text-black border rounded shadow z-50 p-[10px]"
           >
             <ul>
-              <li class="p-2 hover:bg-gray-100 cursor-pointer">Top anime</li>
-              <li class="p-2 hover:bg-gray-100 cursor-pointer">Genres</li>
+              <li class="p-2 hover:bg-gray-100 cursor-pointer">
+                <router-link to="/top-anime">
+                  <p>Top anime</p>
+                </router-link>
+              </li>
+              <li class="p-2 hover:bg-gray-100 cursor-pointer">
+                <router-link to="/genres">
+                  <p>Genres</p>
+                </router-link>
+              </li>
             </ul>
           </div>
         </transition>
@@ -59,8 +67,6 @@
       </Modal>
     </div>
   </nav>
-
-  <router-view />
 </template>
 
 <style scoped>
