@@ -35,3 +35,4 @@ playwright-report/
 .vscode
 
 tests/*
+__pycache__

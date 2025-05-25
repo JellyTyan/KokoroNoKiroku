@@ -1,2 +1,5 @@
-flask
+fastapi
 requests
+SQLAlchemy
+fastapi-users[sqlalchemy]
+aiosqlite
