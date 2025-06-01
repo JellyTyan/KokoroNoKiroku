@@ -132,9 +132,9 @@ export default {
     onMounted(async () => {
       try {
         const [topResponse, trendingResponse, airingResponse] = await Promise.all([
-          axios.get('http://127.0.0.1:5000/api/top-anime', { params: { filter: '' } }),
-          axios.get('http://127.0.0.1:5000/api/top-anime', { params: { filter: 'upcoming' } }),
-          axios.get('http://127.0.0.1:5000/api/top-anime', { params: { filter: 'airing' } }),
+          axios.get('api/top-anime', { params: { filter: '' } }),
+          axios.get('api/top-anime', { params: { filter: 'upcoming' } }),
+          axios.get('api/top-anime', { params: { filter: 'airing' } }),
         ])
 
         TopAnimeByPopularity.value = topResponse.data

@@ -178,7 +178,7 @@ const error = ref(false)
 
 onMounted(async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/api/anime/${route.params.id}`)
+    const response = await axios.get(`/api/anime/${route.params.id}`)
     anime.value = response.data
   } catch (err) {
     error.value = true

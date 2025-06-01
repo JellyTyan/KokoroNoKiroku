@@ -44,13 +44,19 @@
         <h2 class="text-xl font-bold mb-4">{{ isLoginMode ? 'Login' : 'Register' }}</h2>
         <form @submit.prevent="handleSubmit" class="flex flex-col space-y-3">
           <input
-            v-if="!isLoginMode"
             type="text"
-            placeholder="Username"
+            placeholder="Email"
             class="px-3 py-2 border rounded"
+            v-model="email"
+            required
           />
-          <input type="text" placeholder="Email" class="px-3 py-2 border rounded" />
-          <input type="password" placeholder="Password" class="px-3 py-2 border rounded" />
+          <input
+            type="password"
+            placeholder="Password"
+            class="px-3 py-2 border rounded"
+            v-model="password"
+            required
+          />
           <button
             type="submit"
             class="px-4 py-2 border rounded bg-white hover:bg-[#16423c] hover:text-white transition duration-300"
@@ -58,6 +64,10 @@
             {{ isLoginMode ? 'Login' : 'Register' }}
           </button>
         </form>
+
+        <p v-if="componentError" style="color: red;">Ошибка: {{ componentError }}</p>
+        <p class="text-red-500 text-sm" v-if="error">{{ error }}</p>
+        <p class="text-green-600 text-sm" v-if="success">{{ success }}</p>
         <p class="mt-2 text-sm">
           {{ isLoginMode ? 'No account?' : 'Already have one?' }}
           <a href="#" @click.prevent="toggleMode" class="text-[#16423c] underline hover:opacity-80">
@@ -80,21 +90,83 @@
 }
 </style>
 
-<script setup>
-import { ref } from 'vue'
-import Modal from '../components/Modal.vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue';
+import Modal from '../components/Modal.vue';
+import { useAuthStore } from '../stores/auth';
+import { useRouter } from 'vue-router';
+import type { UserCredentials } from '../types/auth'; // Импортируем тип
 
-const showModal = ref(false)
-const isLoginMode = ref(true)
-const modalKey = ref(0)
-const isOpen = ref(false)
+const authStore = useAuthStore();
+const router = useRouter();
 
-const toggleMode = () => {
-  isLoginMode.value = !isLoginMode.value
-  modalKey.value++
-}
+const showModal = ref<boolean>(false);
+const isLoginMode = ref<boolean>(true);
+const modalKey = ref<number>(0);
+const isOpen = ref<boolean>(false);
 
-const handleSubmit = () => {
-  alert(isLoginMode.value ? 'Вход выполнен!' : 'Регистрация успешна!')
-}
+const email = ref<string>('');
+const password = ref<string>('');
+const componentError = ref<string | null>(null);
+
+const toggleMode = (): void => {
+  isLoginMode.value = !isLoginMode.value;
+  componentError.value = null;
+  authStore.error = null;
+  modalKey.value++;
+};
+
+const handleSubmit = async (): Promise<void> => {
+  componentError.value = null;
+  authStore.error = null;
+
+  const credentials: UserCredentials = {
+    email: email.value,
+    password: password.value,
+  };
+
+  try {
+    if (isLoginMode.value) {
+      const success = await authStore.login(credentials);
+      if (success) {
+        showModal.value = false;
+        router.push('/'); // Пример редиректа
+      }
+    } else {
+      console.log('Registering with credentials:', credentials);
+      const success = await authStore.register(credentials);
+      if (success) {
+        isLoginMode.value = true; // Переключаемся в режим логина после успешной регистрации
+        email.value = '';
+        password.value = '';
+        alert('Регистрация прошла успешно! Теперь вы можете войти.');
+      }
+    }
+  } catch (err) {
+    // Ошибка уже установлена в сторе, мы просто отображаем её
+    componentError.value = authStore.error;
+  } finally {
+    // Очищаем поля формы только если логин не удался (или регистрация, если не переключились)
+    if (componentError.value || !authStore.isAuthenticated) {
+      email.value = '';
+      password.value = '';
+    }
+  }
+};
+
+const handleLogout = (): void => {
+  authStore.logout();
+  router.push('/');
+};
+
+// Отслеживаем изменения в состоянии аутентификации
+watch(
+  () => authStore.isAuthenticated,
+  (newVal) => {
+    if (newVal) {
+      showModal.value = false; // Закрыть модальное окно при успешном логине
+    }
+  }
+);
 </script>
+

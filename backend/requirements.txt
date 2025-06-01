@@ -1,5 +1,6 @@
-fastapi
+fastapi~=0.115.12
 requests
-SQLAlchemy
+SQLAlchemy~=2.0.41
 fastapi-users[sqlalchemy]
 aiosqlite
+uvicorn

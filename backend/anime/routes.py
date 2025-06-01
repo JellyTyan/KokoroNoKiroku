@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import List
 
-from backend.anime.crud import (
+from .crud import (
     fetch_top_anime,
     fetch_anime_details,
 )
