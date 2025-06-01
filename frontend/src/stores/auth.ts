@@ -1,9 +1,8 @@
 import { defineStore } from 'pinia';
 import axios, { AxiosError } from 'axios';
-import type { UserCredentials, AuthResponse, ApiError, User } from '../types/auth'; // Импортируем типы
+import type { UserCredentials, ApiError, User } from '../types/auth';
 
 interface AuthState {
-  token: string | null;
   isAuthenticated: boolean;
   user: User | null;
   loading: boolean;
@@ -12,51 +11,36 @@ interface AuthState {
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    token: localStorage.getItem('token') || null,
-    isAuthenticated: !!localStorage.getItem('token'),
+    isAuthenticated: false,
     user: null,
     loading: false,
     error: null,
   }),
+
   actions: {
     async login(credentials: UserCredentials): Promise<boolean> {
       this.loading = true;
       this.error = null;
       try {
-        const params = new URLSearchParams();
-        params.append('username', credentials.email);
-        params.append('password', credentials.password);
+        await axios.post(
+          'http://localhost:5003/api/auth/jwt/login',
+          new URLSearchParams({
+            username: credentials.email,
+            password: credentials.password,
+          }),
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          }
+        );
 
-        await axios.post('/api/auth/jwt/login', params, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        });
-
-        this.token = response.data.access_token;
-        localStorage.setItem('token', this.token);
-        this.isAuthenticated = true;
+        await this.fetchUser();
         return true;
       } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          const axiosError = err as AxiosError<ApiError>;
-          if (axiosError.response?.data?.detail) {
-            if (typeof axiosError.response.data.detail === 'string') {
-              this.error = axiosError.response.data.detail;
-            } else if (Array.isArray(axiosError.response.data.detail)) {
-              this.error = axiosError.response.data.detail.map((e) => e.msg).join(', ');
-            }
-          } else {
-            this.error = 'Неизвестная ошибка при входе.';
-          }
-        } else {
-          this.error = 'Ошибка подключения к серверу.';
-          console.error(err);
-        }
-        this.token = null;
-        localStorage.removeItem('token');
-        this.isAuthenticated = false;
-        throw err;
+        this.handleError(err, 'при входе');
+        return false;
       } finally {
         this.loading = false;
       }
@@ -66,37 +50,56 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       this.error = null;
       try {
-        console.error(credentials.email)
-        console.error(credentials.password)
-        await axios.post(`/api/auth/register`, credentials);
+        await axios.post('http://localhost:5003/api/auth/register', credentials, {
+          withCredentials: true,
+        });
         return true;
       } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          const axiosError = err as AxiosError<ApiError>;
-          if (axiosError.response?.data?.detail) {
-            if (typeof axiosError.response.data.detail === 'string') {
-              this.error = axiosError.response.data.detail;
-            } else if (Array.isArray(axiosError.response.data.detail)) {
-              this.error = axiosError.response.data.detail.map((e) => e.msg).join(', ');
-            }
-          } else {
-            this.error = 'Неизвестная ошибка при регистрации.';
-          }
-        } else {
-          this.error = 'Ошибка подключения к серверу.';
-          console.error(err);
-        }
-        throw err;
+        this.handleError(err, 'при регистрации');
+        return false;
       } finally {
         this.loading = false;
       }
     },
 
-    logout(): void {
-      this.token = null;
-      localStorage.removeItem('token');
-      this.isAuthenticated = false;
+    async fetchUser(): Promise<void> {
+      try {
+        const response = await axios.get<User>('http://localhost:5003/api/users/me', {
+          withCredentials: true,
+        });
+        this.user = response.data;
+        this.isAuthenticated = true;
+      } catch (err) {
+        this.user = null;
+        this.isAuthenticated = false;
+      }
+    },
+
+    async logout(): Promise<void> {
+      await axios.post('http://localhost:5003/auth/jwt/logout', null, {
+        withCredentials: true,
+      });
       this.user = null;
+      this.isAuthenticated = false;
+    },
+
+    handleError(err: unknown, context: string): void {
+      if (axios.isAxiosError(err)) {
+        const axiosError = err as AxiosError<ApiError>;
+        if (axiosError.response?.data?.detail) {
+          const detail = axiosError.response.data.detail;
+          if (typeof detail === 'string') {
+            this.error = detail;
+          } else if (Array.isArray(detail)) {
+            this.error = detail.map((e) => e.msg).join(', ');
+          }
+        } else {
+          this.error = `Неизвестная ошибка ${context}.`;
+        }
+      } else {
+        this.error = `Ошибка подключения ${context}.`;
+        console.error(err);
+      }
     },
   },
 });
