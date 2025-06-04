@@ -1,23 +1,60 @@
 import httpx
+from typing import List, Dict, Any
+import asyncio
+from datetime import datetime, timedelta
 
+# Кэш для топ аниме с временем жизни 1 час
+TOP_ANIME_CACHE: Dict[str, Dict[str, Any]] = {}
 ANIME_CACHE = {}
 
-async def fetch_top_anime(filter_param: str):
-    params = {"type": "tv", "filter": filter_param, "sfw": "true", "limit": 5}
+async def fetch_top_anime(filter_param: str) -> List[Dict[str, Any]]:
+    # Проверяем кэш
+    cache_key = f"top_anime_{filter_param}"
+    if cache_key in TOP_ANIME_CACHE:
+        cache_data = TOP_ANIME_CACHE[cache_key]
+        if datetime.now() - cache_data["timestamp"] < timedelta(hours=1):
+            return cache_data["data"]
+
+    # Запрашиваем 10 аниме для разнообразия
+    params = {
+        "type": "tv",
+        "filter": filter_param,
+        "sfw": "true",
+        "limit": 10
+    }
+
     async with httpx.AsyncClient() as client:
         response = await client.get("https://api.jikan.moe/v4/top/anime", params=params)
     response.raise_for_status()
     data = response.json()["data"]
 
+    # Фильтруем и форматируем данные
+    seen_ids = set()
     filtered_list = []
+    
     for anime in data:
-        filtered_list.append(
-            {
-                "mal_id": anime["mal_id"],
+        mal_id = anime["mal_id"]
+        if mal_id not in seen_ids and len(filtered_list) < 5:  # Ограничиваем до 5 аниме
+            seen_ids.add(mal_id)
+            filtered_list.append({
+                "mal_id": mal_id,
                 "title": anime["titles"][0]["title"],
                 "cover": anime["images"]["webp"]["image_url"],
-            }
-        )
+                "score": anime.get("score", 0),
+                "episodes": anime.get("episodes", 0),
+                "status": anime.get("status", "Unknown"),
+                "aired": {
+                    "from": anime.get("aired", {}).get("from", None),
+                    "to": anime.get("aired", {}).get("to", None)
+                }
+            })
+
+    # Сохраняем в кэш
+    TOP_ANIME_CACHE[cache_key] = {
+        "data": filtered_list,
+        "timestamp": datetime.now()
+    }
+
     return filtered_list
 
 
