@@ -53,6 +53,12 @@ app.include_router(
 app.include_router(anime_router, prefix="/api")
 
 
-@app.get("/authenticated-route")
-async def authenticated_route(user: User = Depends(current_active_user)):
-    return {"message": f"Hello {user.email}!"}
+@app.get("/me")
+async def get_profile(user: User = Depends(current_active_user)):
+    return user
+
+@app.post("/me/update")
+async def update_profile(username: str, user: User = Depends(current_active_user)):
+    user.username = username
+    # DB update here :3
+    return {"status": "updated"}

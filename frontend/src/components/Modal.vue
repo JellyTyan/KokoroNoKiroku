@@ -12,13 +12,15 @@
   </Teleport>
 </template>
 
-<script setup>
-import { defineProps } from 'vue'
+<script setup lang="ts">
+import { defineProps, defineEmits } from 'vue'
 
 defineProps({
   isOpen: Boolean,
   modalKey: Number,
 })
+
+defineEmits(['close'])
 </script>
 
 <style scoped>

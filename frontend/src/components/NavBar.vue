@@ -108,16 +108,22 @@ const isOpen = ref<boolean>(false);
 const email = ref<string>('');
 const password = ref<string>('');
 const componentError = ref<string | null>(null);
+const error = ref<string | null>(null);
+const success = ref<string | null>(null);
 
 const toggleMode = (): void => {
   isLoginMode.value = !isLoginMode.value;
   componentError.value = null;
+  error.value = null;
+  success.value = null;
   authStore.error = null;
   modalKey.value++;
 };
 
 const handleSubmit = async (): Promise<void> => {
   componentError.value = null;
+  error.value = null;
+  success.value = null;
   authStore.error = null;
 
   const credentials: UserCredentials = {
@@ -127,26 +133,25 @@ const handleSubmit = async (): Promise<void> => {
 
   try {
     if (isLoginMode.value) {
-      const success = await authStore.login(credentials);
-      if (success) {
+      const loginSuccess = await authStore.login(credentials);
+      if (loginSuccess) {
         showModal.value = false;
-        router.push('/'); // Пример редиректа
+        router.push('/');
       }
     } else {
       console.log('Registering with credentials:', credentials);
-      const success = await authStore.register(credentials);
-      if (success) {
-        isLoginMode.value = true; // Переключаемся в режим логина после успешной регистрации
+      const registerSuccess = await authStore.register(credentials);
+      if (registerSuccess) {
+        isLoginMode.value = true;
         email.value = '';
         password.value = '';
-        alert('Регистрация прошла успешно! Теперь вы можете войти.');
+        success.value = 'Регистрация прошла успешно! Теперь вы можете войти.';
       }
     }
   } catch (err) {
-    // Ошибка уже установлена в сторе, мы просто отображаем её
+    error.value = authStore.error;
     componentError.value = authStore.error;
   } finally {
-    // Очищаем поля формы только если логин не удался (или регистрация, если не переключились)
     if (componentError.value || !authStore.isAuthenticated) {
       email.value = '';
       password.value = '';
