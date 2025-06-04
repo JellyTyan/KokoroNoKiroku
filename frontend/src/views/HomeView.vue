@@ -72,48 +72,63 @@
     <div class="mt-[40px]">
       <h1 class="text-[2rem] text-[#16423c] mb-4">Top Anime Series</h1>
       <div class="mt-[20px] flex flex-row justify-between">
-        <div
-          v-for="anime in TopAnimeByPopularity"
-          :key="anime.mal_id"
-          class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
-        >
-          <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
-            <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-            <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
-          </router-link>
-        </div>
+        <template v-if="loading">
+          <AnimeSkeleton v-for="n in 6" :key="n" />
+        </template>
+        <template v-else>
+          <div
+            v-for="anime in TopAnimeByPopularity"
+            :key="anime.mal_id"
+            class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
+          >
+            <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
+              <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
+              <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
+            </router-link>
+          </div>
+        </template>
       </div>
     </div>
 
     <div class="mt-[40px]">
       <h1 class="text-[2rem] text-[#16423c] mb-4">Upcoming Anime</h1>
       <div class="mt-[20px] flex flex-row justify-between">
-        <div
-          v-for="anime in UpcomingAnime"
-          :key="anime.mal_id"
-          class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
-        >
-          <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
-            <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-            <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
-          </router-link>
-        </div>
+        <template v-if="loading">
+          <AnimeSkeleton v-for="n in 6" :key="n" />
+        </template>
+        <template v-else>
+          <div
+            v-for="anime in UpcomingAnime"
+            :key="anime.mal_id"
+            class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
+          >
+            <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
+              <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
+              <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
+            </router-link>
+          </div>
+        </template>
       </div>
     </div>
 
     <div class="mt-[40px]">
       <h1 class="text-[2rem] text-[#16423c] mb-4">Airing Anime</h1>
       <div class="mt-[20px] flex flex-row justify-between">
-        <div
-          v-for="anime in AiringAnime"
-          :key="anime.mal_id"
-          class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
-        >
-          <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
-            <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-            <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
-          </router-link>
-        </div>
+        <template v-if="loading">
+          <AnimeSkeleton v-for="n in 6" :key="n" />
+        </template>
+        <template v-else>
+          <div
+            v-for="anime in AiringAnime"
+            :key="anime.mal_id"
+            class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
+          >
+            <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
+              <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
+              <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
+            </router-link>
+          </div>
+        </template>
       </div>
     </div>
   </section>
@@ -122,12 +137,17 @@
 <script>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import AnimeSkeleton from '../components/AnimeSkeleton.vue'
 
 export default {
+  components: {
+    AnimeSkeleton
+  },
   setup() {
     const TopAnimeByPopularity = ref([])
     const UpcomingAnime = ref([])
     const AiringAnime = ref([])
+    const loading = ref(true)
 
     onMounted(async () => {
       try {
@@ -142,10 +162,12 @@ export default {
         AiringAnime.value = airingResponse.data
       } catch (error) {
         console.error('Ошибка загрузки аниме:', error)
+      } finally {
+        loading.value = false
       }
     })
 
-    return { TopAnimeByPopularity, UpcomingAnime, AiringAnime }
+    return { TopAnimeByPopularity, UpcomingAnime, AiringAnime, loading }
   },
 }
 </script>
