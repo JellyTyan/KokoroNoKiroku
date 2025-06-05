@@ -33,12 +33,56 @@
     </div>
 
     <div>
-      <button
-        @click="((showModal = true), (isLoginMode = true))"
-        class="px-5 py-2 border border-black rounded bg-[#6a9c89] text-[#16423c] text-sm font-semibold hover:bg-[#16423c] hover:text-white transition duration-300"
-      >
-        Sign In
-      </button>
+      <template v-if="!authStore.isAuthenticated">
+        <button
+          @click="((showModal = true), (isLoginMode = true))"
+          class="px-5 py-2 border border-black rounded bg-[#6a9c89] text-[#16423c] text-sm font-semibold hover:bg-[#16423c] hover:text-white transition duration-300"
+        >
+          Sign In
+        </button>
+      </template>
+      <template v-else>
+        <div class="relative" @mouseenter="isProfileOpen = true" @mouseleave="isProfileOpen = false">
+          <button class="flex items-center space-x-2">
+            <img
+              :src="authStore.user?.avatar_url || '/src/assets/images/blank-profile.webp'"
+              alt="Profile"
+              class="w-10 h-10 rounded-full object-cover border-2 border-[#6a9c89]"
+            />
+          </button>
+
+          <transition name="fade">
+            <div
+              v-if="isProfileOpen"
+              class="absolute right-0 mt-2 w-48 bg-white text-black border rounded shadow z-50 p-[10px]"
+            >
+              <ul>
+                <li class="p-2 hover:bg-gray-100 cursor-pointer">
+                  <router-link to="/profile" class="flex items-center space-x-2">
+                    <span class="material-icons text-[#16423c]">person</span>
+                    <span>Profile</span>
+                  </router-link>
+                </li>
+                <li class="p-2 hover:bg-gray-100 cursor-pointer">
+                  <router-link to="/top-anime" class="flex items-center space-x-2">
+                    <span class="material-icons text-[#16423c]">star</span>
+                    <span>Top Anime</span>
+                  </router-link>
+                </li>
+                <li class="p-2 hover:bg-gray-100 cursor-pointer">
+                  <button
+                    @click="handleLogout"
+                    class="flex items-center space-x-2 w-full text-left"
+                  >
+                    <span class="material-icons text-[#16423c]">logout</span>
+                    <span>Log Out</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </transition>
+        </div>
+      </template>
 
       <Modal :isOpen="showModal" :modalKey="modalKey" @close="showModal = false">
         <h2 class="text-xl font-bold mb-4">{{ isLoginMode ? 'Login' : 'Register' }}</h2>
@@ -112,6 +156,7 @@ const showModal = ref<boolean>(false);
 const isLoginMode = ref<boolean>(true);
 const modalKey = ref<number>(0);
 const isOpen = ref<boolean>(false);
+const isProfileOpen = ref<boolean>(false);
 
 const email = ref<string>('');
 const username = ref<string>('');
