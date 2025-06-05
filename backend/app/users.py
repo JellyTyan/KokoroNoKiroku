@@ -9,6 +9,8 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.db import User, get_user_db
 
@@ -17,6 +19,27 @@ SECRET = "SECRET"
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
+
+    async def authenticate(
+        self, credentials: models.UP
+    ) -> Optional[User]:
+        user = await self.user_db.get_by_email(credentials.username)
+        if user is None:
+            # Try to find user by username
+            async with self.user_db.session as session:
+                stmt = select(User).where(User.username == credentials.username)
+                result = await session.execute(stmt)
+                user = result.scalar_one_or_none()
+
+        if user is None:
+            return None
+        if not user.is_active:
+            return None
+        if not self.password_helper.verify_and_update(
+            credentials.password, user.hashed_password
+        )[0]:
+            return None
+        return user
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")

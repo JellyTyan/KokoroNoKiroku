@@ -28,7 +28,7 @@ anime_genre_table = Table(
 )
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
-    username = Column(String, nullable=True)
+    username = Column(String, nullable=False, unique=True)
     display_name = Column(String, nullable=True)
     description = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)

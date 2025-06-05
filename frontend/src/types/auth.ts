@@ -1,5 +1,6 @@
 export interface UserCredentials {
   email: string;
+  username: string;
   password: string;
 }
 
@@ -21,6 +22,7 @@ export interface ApiError {
 export interface User {
   id: number;
   email: string;
+  username: string;
   is_active: boolean;
   is_superuser: boolean;
   is_verified: boolean;

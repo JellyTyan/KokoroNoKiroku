@@ -44,8 +44,16 @@
         <h2 class="text-xl font-bold mb-4">{{ isLoginMode ? 'Login' : 'Register' }}</h2>
         <form @submit.prevent="handleSubmit" class="flex flex-col space-y-3">
           <input
+            v-if="!isLoginMode"
             type="text"
-            placeholder="Email"
+            placeholder="Username"
+            class="px-3 py-2 border rounded"
+            v-model="username"
+            required
+          />
+          <input
+            type="text"
+            :placeholder="isLoginMode ? 'Username or Email' : 'Email'"
             class="px-3 py-2 border rounded"
             v-model="email"
             required
@@ -95,7 +103,7 @@ import { ref, watch } from 'vue';
 import Modal from '../components/Modal.vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
-import type { UserCredentials } from '../types/auth'; // Импортируем тип
+import type { UserCredentials } from '../types/auth';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -106,6 +114,7 @@ const modalKey = ref<number>(0);
 const isOpen = ref<boolean>(false);
 
 const email = ref<string>('');
+const username = ref<string>('');
 const password = ref<string>('');
 const componentError = ref<string | null>(null);
 const error = ref<string | null>(null);
@@ -118,6 +127,10 @@ const toggleMode = (): void => {
   success.value = null;
   authStore.error = null;
   modalKey.value++;
+  // Clear form fields when switching modes
+  email.value = '';
+  username.value = '';
+  password.value = '';
 };
 
 const handleSubmit = async (): Promise<void> => {
@@ -128,6 +141,7 @@ const handleSubmit = async (): Promise<void> => {
 
   const credentials: UserCredentials = {
     email: email.value,
+    username: isLoginMode.value ? email.value : username.value,
     password: password.value,
   };
 
@@ -139,11 +153,11 @@ const handleSubmit = async (): Promise<void> => {
         router.push('/');
       }
     } else {
-      console.log('Registering with credentials:', credentials);
       const registerSuccess = await authStore.register(credentials);
       if (registerSuccess) {
         isLoginMode.value = true;
         email.value = '';
+        username.value = '';
         password.value = '';
         success.value = 'Регистрация прошла успешно! Теперь вы можете войти.';
       }
@@ -154,6 +168,7 @@ const handleSubmit = async (): Promise<void> => {
   } finally {
     if (componentError.value || !authStore.isAuthenticated) {
       email.value = '';
+      username.value = '';
       password.value = '';
     }
   }

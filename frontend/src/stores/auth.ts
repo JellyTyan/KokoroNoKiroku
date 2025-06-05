@@ -25,7 +25,7 @@ export const useAuthStore = defineStore('auth', {
         await axios.post(
           'http://localhost:5003/api/auth/jwt/login',
           new URLSearchParams({
-            username: credentials.email,
+            username: credentials.username || credentials.email,
             password: credentials.password,
           }),
           {
