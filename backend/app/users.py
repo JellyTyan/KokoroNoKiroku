@@ -23,11 +23,11 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def authenticate(
         self, credentials: models.UP
     ) -> Optional[User]:
-        user = await self.user_db.get_by_email(credentials.username)
+        user = await self.user_db.get_by_email(credentials.username.lower())
         if user is None:
             # Try to find user by username
             async with self.user_db.session as session:
-                stmt = select(User).where(User.username == credentials.username)
+                stmt = select(User).where(User.username == credentials.username.lower())
                 result = await session.execute(stmt)
                 user = result.scalar_one_or_none()
 

@@ -186,7 +186,7 @@ const handleSubmit = async (): Promise<void> => {
 
   const credentials: UserCredentials = {
     email: email.value,
-    username: isLoginMode.value ? email.value : username.value,
+    username: isLoginMode.value ? email.value : username.value.toLowerCase(),
     password: password.value,
   };
 
