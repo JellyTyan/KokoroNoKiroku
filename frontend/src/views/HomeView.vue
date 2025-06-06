@@ -68,106 +68,112 @@
     </div>
   </div>
 
-  <section class="max-w-[1140px] mx-auto">
+  <section class="max-w-[1240px] mx-auto">
     <div class="mt-[40px]">
       <h1 class="text-[2rem] text-[#16423c] mb-4">Top Anime Series</h1>
-      <div class="mt-[20px] flex flex-row justify-between">
+      <div class="mt-[20px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <template v-if="loading">
           <AnimeSkeleton v-for="n in 6" :key="n" />
         </template>
         <template v-else>
-          <div
+          <AnimeCard
             v-for="anime in TopAnimeByPopularity"
             :key="anime.mal_id"
-            class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
-          >
-            <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
-              <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-              <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
-            </router-link>
-          </div>
+            :anime="anime"
+          />
         </template>
       </div>
     </div>
 
     <div class="mt-[40px]">
       <h1 class="text-[2rem] text-[#16423c] mb-4">Upcoming Anime</h1>
-      <div class="mt-[20px] flex flex-row justify-between">
+      <div class="mt-[20px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <template v-if="loading">
           <AnimeSkeleton v-for="n in 6" :key="n" />
         </template>
         <template v-else>
-          <div
+          <AnimeCard
             v-for="anime in UpcomingAnime"
             :key="anime.mal_id"
-            class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
-          >
-            <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
-              <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-              <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
-            </router-link>
-          </div>
+            :anime="anime"
+          />
         </template>
       </div>
     </div>
 
     <div class="mt-[40px]">
       <h1 class="text-[2rem] text-[#16423c] mb-4">Airing Anime</h1>
-      <div class="mt-[20px] flex flex-row justify-between">
+      <div class="mt-[20px] grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <template v-if="loading">
           <AnimeSkeleton v-for="n in 6" :key="n" />
         </template>
         <template v-else>
-          <div
+          <AnimeCard
             v-for="anime in AiringAnime"
             :key="anime.mal_id"
-            class="block p-[10px] rounded-[8px] hover:scale-125 duration-350 max-w-[200px]"
-          >
-            <router-link :to="'/anime/' + anime.mal_id" class="no-underline block text-center">
-              <img :src="anime.cover" alt="" class="w-[200px] h-[280px]" />
-              <h4 class="text-[#16423c] mt-[10px]">{{ anime.title }}</h4>
-            </router-link>
-          </div>
+            :anime="anime"
+          />
         </template>
       </div>
     </div>
   </section>
 </template>
 
-<script>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AnimeSkeleton from '../components/AnimeSkeleton.vue'
+import AnimeCard from '../components/AnimeCard.vue'
 
-export default {
-  components: {
-    AnimeSkeleton
-  },
-  setup() {
-    const TopAnimeByPopularity = ref([])
-    const UpcomingAnime = ref([])
-    const AiringAnime = ref([])
-    const loading = ref(true)
+interface Anime {
+  mal_id: number;
+  title: string;
+  images: {
+    jpg: {
+      large_image_url: string;
+    };
+  };
+  score: number;
+  year: number | null;
+  type: string;
+}
 
-    onMounted(async () => {
-      try {
-        const [topResponse, trendingResponse, airingResponse] = await Promise.all([
-          axios.get('api/top-anime', { params: { filter: '' } }),
-          axios.get('api/top-anime', { params: { filter: 'upcoming' } }),
-          axios.get('api/top-anime', { params: { filter: 'airing' } }),
-        ])
+const TopAnimeByPopularity = ref<Anime[]>([])
+const UpcomingAnime = ref<Anime[]>([])
+const AiringAnime = ref<Anime[]>([])
+const loading = ref(true)
 
-        TopAnimeByPopularity.value = topResponse.data
-        UpcomingAnime.value = trendingResponse.data
-        AiringAnime.value = airingResponse.data
-      } catch (error) {
-        console.error('Ошибка загрузки аниме:', error)
-      } finally {
-        loading.value = false
+const fetchAnime = async (filter: string) => {
+  try {
+    const response = await axios.get(`https://api.jikan.moe/v4/top/anime`, {
+      params: {
+        filter,
+        limit: 6,
+        sfw: true
       }
     })
-
-    return { TopAnimeByPopularity, UpcomingAnime, AiringAnime, loading }
-  },
+    return response.data.data
+  } catch (error) {
+    console.error(`Error fetching ${filter} anime:`, error)
+    return []
+  }
 }
+
+onMounted(async () => {
+  try {
+    const [topResponse, upcomingResponse, airingResponse] = await Promise.all([
+      fetchAnime(''),
+      fetchAnime('upcoming'),
+      fetchAnime('airing')
+    ])
+
+    TopAnimeByPopularity.value = topResponse
+    UpcomingAnime.value = upcomingResponse
+    AiringAnime.value = airingResponse
+  } catch (error) {
+    console.error('Error loading anime:', error)
+  } finally {
+    loading.value = false
+  }
+})
 </script>

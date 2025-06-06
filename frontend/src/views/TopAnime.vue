@@ -1,41 +1,74 @@
 <template>
-  <div class="p-4">
-    <div ref="grid" class="grid grid-cols-5 gap-4">
-      <div
-        v-for="(item, index) in items"
-        :key="index"
-        class="bg-white shadow rounded-lg p-4 h-32 flex items-center justify-center text-lg font-bold"
-      >
-        {{ item }}
-      </div>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Top Anime</h1>
+    
+    <div ref="grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <AnimeCard
+        v-for="anime in animeList"
+        :key="anime.mal_id"
+        :anime="anime"
+      />
     </div>
 
-    <div v-if="loading" class="text-center mt-4 text-gray-500">Загрузка...</div>
+    <div v-if="loading" class="text-center mt-8">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#16423c] border-t-transparent"></div>
+      <p class="mt-2 text-gray-600">Loading more anime...</p>
+    </div>
+
+    <div v-if="error" class="text-center mt-8 text-red-500">
+      {{ error }}
+    </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import axios from 'axios'
+import AnimeCard from '../components/AnimeCard.vue'
 
-const items = ref([])
+interface Anime {
+  mal_id: number;
+  title: string;
+  images: {
+    jpg: {
+      large_image_url: string;
+    };
+  };
+  score: number;
+  year: number | null;
+  type: string;
+}
+
+const animeList = ref<Anime[]>([])
 const loading = ref(false)
-const page = ref(0)
-const limit = 20
-const grid = ref(null)
+const error = ref<string | null>(null)
+const page = ref(1)
+const hasMore = ref(true)
+const grid = ref<HTMLElement | null>(null)
 
-const fetchMoreItems = async () => {
-  if (loading.value) return
+const fetchAnime = async () => {
+  if (loading.value || !hasMore.value) return
+  
   loading.value = true
+  error.value = null
 
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  try {
+    const response = await axios.get(`https://api.jikan.moe/v4/top/anime?page=${page.value}`)
+    const newAnime = response.data.data
 
-  const newItems = Array.from(
-    { length: limit },
-    (_, i) => `Карточка #${page.value * limit + i + 1}`,
-  )
-  items.value.push(...newItems)
-  page.value++
-  loading.value = false
+    if (newAnime.length === 0) {
+      hasMore.value = false
+      return
+    }
+
+    animeList.value.push(...newAnime)
+    page.value++
+  } catch (err) {
+    error.value = 'Failed to load anime. Please try again later.'
+    console.error('Error fetching anime:', err)
+  } finally {
+    loading.value = false
+  }
 }
 
 const onScroll = () => {
@@ -45,12 +78,12 @@ const onScroll = () => {
   const windowHeight = window.innerHeight
 
   if (bottom < windowHeight + 200) {
-    fetchMoreItems()
+    fetchAnime()
   }
 }
 
 onMounted(() => {
-  fetchMoreItems()
+  fetchAnime()
   window.addEventListener('scroll', onScroll)
 })
 

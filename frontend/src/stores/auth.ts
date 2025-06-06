@@ -85,11 +85,15 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout(): Promise<void> {
-      await axios.post('http://localhost:5003/auth/jwt/logout', null, {
-        withCredentials: true,
-      });
-      this.user = null;
-      this.isAuthenticated = false;
+      try {
+        await axios.post('http://localhost:5003/api/auth/jwt/logout', null, {
+          withCredentials: true,
+        });
+        this.user = null;
+        this.isAuthenticated = false;
+      } catch (err) {
+        this.handleError(err, 'при выходе');
+      }
     },
 
     handleError(err: unknown, context: string): void {
