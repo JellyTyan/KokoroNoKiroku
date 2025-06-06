@@ -3,4 +3,6 @@ requests
 SQLAlchemy~=2.0.41
 fastapi-users[sqlalchemy]
 aiosqlite
-uvicorn
+uvicorn~=0.34.2
+httpx~=0.28.1
+pydantic~=2.11.5

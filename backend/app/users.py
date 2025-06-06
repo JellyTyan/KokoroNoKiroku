@@ -1,8 +1,9 @@
 import uuid
 from typing import Optional
 
-from fastapi import Depends, Request
+from fastapi import Depends, Request, HTTPException
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
+from fastapi_users.exceptions import UserAlreadyExists
 from fastapi_users.authentication import (
     AuthenticationBackend,
     CookieTransport,
@@ -40,6 +41,20 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         )[0]:
             return None
         return user
+
+    async def create(
+        self,
+        user_create,
+        safe: bool = False,
+        request=None,
+    ) -> User:
+        try:
+            return await super().create(user_create, safe=safe, request=request)
+        except UserAlreadyExists:
+            raise HTTPException(
+                status_code=409,
+                detail="User exists"
+            )
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")

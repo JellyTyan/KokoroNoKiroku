@@ -117,7 +117,6 @@
           </button>
         </form>
 
-        <p v-if="componentError" style="color: red;">Ошибка: {{ componentError }}</p>
         <p class="text-red-500 text-sm" v-if="error">{{ error }}</p>
         <p class="text-green-600 text-sm" v-if="success">{{ success }}</p>
         <p class="mt-2 text-sm">
@@ -199,23 +198,23 @@ const handleSubmit = async (): Promise<void> => {
       }
     } else {
       const registerSuccess = await authStore.register(credentials);
+
       if (registerSuccess) {
         isLoginMode.value = true;
-        email.value = '';
-        username.value = '';
-        password.value = '';
         success.value = 'Регистрация прошла успешно! Теперь вы можете войти.';
+      } else {
+        componentError.value = authStore.error || 'Не удалось зарегистрироваться';
       }
     }
   } catch (err) {
-    error.value = authStore.error;
-    componentError.value = authStore.error;
+    componentError.value = authStore.error || 'Произошла непредвиденная ошибка';
   } finally {
-    if (componentError.value || !authStore.isAuthenticated) {
+    if (componentError.value) {
       email.value = '';
       username.value = '';
       password.value = '';
     }
+    error.value = componentError.value;
   }
 };
 

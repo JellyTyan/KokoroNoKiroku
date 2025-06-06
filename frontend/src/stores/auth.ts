@@ -63,11 +63,31 @@ export const useAuthStore = defineStore('auth', {
           withCredentials: true,
         });
         return true;
-      } catch (err: unknown) {
-        this.handleError(err, 'при регистрации');
-        return false;
+      } catch (err: any) {
+        if (axios.isAxiosError(err)) {
+          const status = err.response?.status
+          const detail = err.response?.data?.detail
+
+          if (status === 400 && detail === 'REGISTER_USER_ALREADY_EXISTS') {
+            this.error = 'Пользователь с таким email или username уже существует'
+          } else if (status === 409) {
+            this.error = typeof detail === 'string' ? detail : 'Пользователь уже существует'
+          } else if (status === 422) {
+            this.error = 'Некорректные данные — проверьте поля'
+          } else if (typeof detail === 'string') {
+            this.error = detail
+          } else {
+            this.error = 'Ошибка при регистрации'
+          }
+
+          console.error('Ошибка регистрации:', detail)
+        } else {
+          this.error = 'Неизвестная ошибка при регистрации'
+        }
+
+        return false
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
 

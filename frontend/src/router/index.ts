@@ -15,7 +15,9 @@ const router = createRouter({
       path: '/anime/:id',
       name: 'anime-details',
       component: () => import('../views/AnimeDetail.vue'),
-      props: true,
+      props: (route) => ({
+        id: Number(route.params.id)
+      })
     },
     { path: '/top-anime', component: TopAnime },
     {

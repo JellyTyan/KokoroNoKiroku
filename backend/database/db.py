@@ -7,18 +7,13 @@ from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, Text, UniqueConstraint, func
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-import enum
 from sqlalchemy import Enum as SqlEnum
+from schemas.anime import AnimeStatusEnum
 
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
 class Base(DeclarativeBase):
     pass
-
-class AnimeStatus(enum.Enum):
-    WATCHED = "watched"
-    PLANNED = "planned"
-    DROPPED = "dropped"
 
 anime_genre_table = Table(
     "anime_genres",
@@ -61,7 +56,7 @@ class UserAnime(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
     anime_id: Mapped[int] = mapped_column(ForeignKey("anime.mal_id"))
 
-    status: Mapped[AnimeStatus] = mapped_column(SqlEnum(AnimeStatus, name="anime_status", native_enum=False))
+    status: Mapped[AnimeStatusEnum] = mapped_column(SqlEnum(AnimeStatusEnum, name="anime_status", native_enum=False))
     user_score: Mapped[int] = mapped_column(Integer, nullable=True)
     user_review: Mapped[str] = mapped_column(Text, nullable=True)
     complete_episodes: Mapped[int] = mapped_column(Integer, default=0)

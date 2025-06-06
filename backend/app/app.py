@@ -6,6 +6,7 @@ from database.db import User, create_db_and_tables
 from .schemas import UserCreate, UserRead, UserUpdate
 from .users import (auth_backend, current_active_user, fastapi_users)
 from anime.routes import router as anime_router
+from api.anime_list import router as anime_list_router
 
 
 @asynccontextmanager
@@ -34,6 +35,7 @@ app.include_router(
     prefix="/api/auth",
     tags=["auth"],
 )
+
 app.include_router(
     fastapi_users.get_reset_password_router(),
     prefix="/api/auth",
@@ -51,6 +53,8 @@ app.include_router(
 )
 
 app.include_router(anime_router, prefix="/api")
+
+app.include_router(anime_list_router, prefix="/api/anime-list", tags=["Anime List"])
 
 
 @app.get("/me")
