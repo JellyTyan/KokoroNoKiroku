@@ -18,6 +18,15 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
+    async init(): Promise<void> {
+      try {
+        await this.fetchUser();
+      } catch (err) {
+        this.user = null;
+        this.isAuthenticated = false;
+      }
+    },
+
     async login(credentials: UserCredentials): Promise<boolean> {
       this.loading = true;
       this.error = null;
