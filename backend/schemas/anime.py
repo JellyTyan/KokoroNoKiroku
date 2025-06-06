@@ -3,9 +3,10 @@ from typing import Optional
 from enum import Enum
 
 class AnimeStatusEnum(str, Enum):
-    WATCHED = "watched"
+    WATCHING = "watching"
     PLANNED = "planned"
     COMPLETED = "completed"
+    DROPPED = "dropped"
 
 class AnimeCreate(BaseModel):
     mal_id: int

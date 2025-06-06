@@ -1,161 +1,160 @@
 <template>
-  <div class="anime-detail">
+  <div class="max-w-[1200px] mx-auto px-4 py-8">
     <!-- Loading -->
-    <div v-if="loading" class="flex justify-center items-center h-full py-12">
-      <div class="font-f">Loading moe...</div>
+    <div v-if="loading" class="flex justify-center items-center h-[400px]">
+      <div class="text-[#16423c] text-xl">Loading...</div>
     </div>
 
     <!-- Error -->
-    <div
-      v-else-if="error"
-      class="flex flex-col items-center text-center max-w-[1200px] mx-auto p-8 my-12"
-    >
-      <h1 class="text-6xl font-bold mb-4">404 Nya~</h1>
-      <p class="text-2xl">
-        Anime with ID <b>{{ $route.params.id }}</b> not found (╥_╥)
+    <div v-else-if="error" class="text-center py-12">
+      <h1 class="text-6xl font-bold text-[#16423c] mb-4">404</h1>
+      <p class="text-xl text-gray-600">
+        Anime with ID <b>{{ $route.params.id }}</b> not found
       </p>
     </div>
 
     <!-- Main Content -->
-    <div v-else class="flex flex-row gap-8 justify-center max-w-[1200px] mx-auto mt-8">
-      <div class="flex flex-row gap-8">
-        <!-- Left column -->
-        <div class="flex flex-col gap-4">
-          <div id="poster-block" class="flex flex-col text-center items-center">
-            <img
-              :src="anime?.image"
-              id="poster"
-              alt="Poster"
-              @click="openModal(anime?.large_image)"
+    <div v-else class="flex flex-col lg:flex-row gap-8">
+      <!-- Left column -->
+      <div class="lg:w-1/3">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+          <img
+            :src="anime?.image"
+            :alt="anime?.title"
+            class="w-full h-auto cursor-pointer"
+            @click="openModal(anime?.large_image)"
+          />
+        </div>
+
+        <div v-if="isAuthenticated" class="mt-4">
+          <div v-if="!entryLoaded" class="text-center text-gray-600">Loading...</div>
+
+          <BaseButton
+            v-else-if="!userEntry"
+            variant="primary"
+            class="w-full"
+            @click="addToList"
+          >
+            Add to List
+          </BaseButton>
+
+          <div v-else class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">Status:</label>
+            <StatusSelect
+              v-model="userEntry.status"
+              @update:modelValue="(value: string) => updateStatus(value as AnimeStatus)"
             />
-
-            <ImageModal :show="showImageModal" :src="selectedImage" @close="showImageModal = false" />
           </div>
+        </div>
 
-          <div v-if="isAuthenticated" class="flex justify-center">
-            <div v-if="!entryLoaded">Загрузка...</div>
-
-            <!-- Если аниме не добавлено -->
-            <button
-              v-else-if="!userEntry"
-              @click="addToList"
-              class="bg-emerald-600 p-[10px] rounded-[10px]"
-            >
-              Добавить в список
-            </button>
-
-            <!-- Если аниме уже есть — показать select -->
-            <div v-else>
-              <label for="status">Статус:</label>
-              <select
-                id="status"
-                v-model="userEntry.status"
-                @change="updateStatus(userEntry.status)"
-                class="border border-gray-300 rounded px-2 py-1"
-              >
-                <option :value="AnimeStatus.PLANNED">Запланировано</option>
-                <option :value="AnimeStatus.WATCHED">Смотрю</option>
-                <option :value="AnimeStatus.COMPLETED">Просмотрено</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Info blocks -->
-          <div class="info-block">
-            <p class="category-name">Format</p>
-            <p class="category-description">{{ anime!.type }}</p>
+        <!-- Info blocks -->
+        <div class="mt-6 space-y-4">
+          <div v-if="anime?.type" class="info-block">
+            <p class="text-sm font-medium text-gray-500">Format</p>
+            <p class="text-base text-[#16423c]">{{ anime.type }}</p>
           </div>
 
           <div v-if="anime?.source" class="info-block">
-            <p class="category-name">Source</p>
-            <p class="category-description">{{ anime.source }}</p>
+            <p class="text-sm font-medium text-gray-500">Source</p>
+            <p class="text-base text-[#16423c]">{{ anime.source }}</p>
           </div>
 
           <div v-if="anime?.status" class="info-block">
-            <p class="category-name">Status</p>
-            <p class="category-description">{{ anime.status }}</p>
+            <p class="text-sm font-medium text-gray-500">Status</p>
+            <p class="text-base text-[#16423c]">{{ anime.status }}</p>
           </div>
 
           <div v-if="anime?.startDate" class="info-block">
-            <p class="category-name">Start Date</p>
-            <p class="category-description">{{ formattedDate(anime.startDate) }}</p>
+            <p class="text-sm font-medium text-gray-500">Start Date</p>
+            <p class="text-base text-[#16423c]">{{ formattedDate(anime.startDate) }}</p>
           </div>
 
           <div v-if="anime?.endDate?.year" class="info-block">
-            <p class="category-name">End Date</p>
-            <p class="category-description">{{ formattedDate(anime.endDate) }}</p>
+            <p class="text-sm font-medium text-gray-500">End Date</p>
+            <p class="text-base text-[#16423c]">{{ formattedDate(anime.endDate) }}</p>
           </div>
 
           <div v-if="anime?.nextAiringEpisode" class="info-block">
-            <p class="category-name">Next episode</p>
-            <p class="category-description">
+            <p class="text-sm font-medium text-gray-500">Next Episode</p>
+            <p class="text-base text-[#16423c]">
               {{ formatAring(anime.nextAiringEpisode.airingTime) }}
             </p>
           </div>
 
           <div v-if="anime?.episodeDuration" class="info-block">
-            <p class="category-name">Duration</p>
-            <p class="category-description">{{ anime.episodeDuration }}</p>
+            <p class="text-sm font-medium text-gray-500">Duration</p>
+            <p class="text-base text-[#16423c]">{{ anime.episodeDuration }} min</p>
           </div>
 
           <div v-if="anime?.totalEpisodes" class="info-block">
-            <p class="category-name">Current/Total Episodes</p>
-            <p class="category-description">
-              {{ anime.currentEpisode + '/' + anime.totalEpisodes }}
+            <p class="text-sm font-medium text-gray-500">Episodes</p>
+            <p class="text-base text-[#16423c]">
+              {{ anime.currentEpisode }}/{{ anime.totalEpisodes }}
             </p>
           </div>
 
           <div v-if="anime?.rating" class="info-block">
-            <p class="category-name">Rating</p>
-            <p class="category-description">{{ anime.rating }}</p>
+            <p class="text-sm font-medium text-gray-500">Rating</p>
+            <p class="text-base text-[#16423c]">{{ anime.rating }}</p>
           </div>
 
           <div v-if="anime?.season" class="info-block">
-            <p class="category-name">Season</p>
-            <p class="category-description">{{ anime.season + ' ' + anime.year }}</p>
+            <p class="text-sm font-medium text-gray-500">Season</p>
+            <p class="text-base text-[#16423c]">{{ anime.season }} {{ anime.year }}</p>
           </div>
 
-          <div v-if="anime?.genres" class="info-block" id="anime-genres">
-            <p class="category-name">Genres</p>
-            <span
-              class="category-description"
-              v-for="genre in anime.genres"
-              :key="genre"
-              :id="'genre-' + genre.toLowerCase().replace(/\\s+/g, '-')"
-            >
-              {{ genre }}
-            </span>
+          <div v-if="anime?.genres" class="info-block">
+            <p class="text-sm font-medium text-gray-500">Genres</p>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <span
+                v-for="genre in anime.genres"
+                :key="genre"
+                class="px-2 py-1 bg-[#98c1ae] text-[#16423c] rounded-full text-sm"
+              >
+                {{ genre }}
+              </span>
+            </div>
           </div>
         </div>
+      </div>
 
-        <!-- Right column -->
-        <div class="overview">
-          <div class="anime-titles">
-            <h1 id="anime-title-en" class="title text-3xl">{{ anime?.title }}</h1>
-            <h3 v-if="anime?.title_japanese" id="anime-title-jp" class="title">
+      <!-- Right column -->
+      <div class="lg:w-2/3">
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <div class="mb-6">
+            <h1 class="text-3xl font-bold text-[#16423c] mb-2">{{ anime?.title }}</h1>
+            <h3 v-if="anime?.title_japanese" class="text-xl text-gray-600">
               {{ anime.title_japanese }}
             </h3>
           </div>
 
-          <div v-if="anime?.synopsis" class="synopsis">
-            <p v-html="anime.synopsis"></p>
+          <div v-if="anime?.synopsis" class="prose max-w-none">
+            <p class="text-gray-700">{{ anime.synopsis }}</p>
           </div>
 
-          <div v-if="anime?.youtube_embed" class="trailer">
-            <h3>Trailer</h3>
-            <iframe
-              :src="anime.youtube_embed + '?autoplay=1&mute=1'"
-              frameborder="0"
-              width="380"
-              height="214"
-            ></iframe>
+          <div v-if="anime?.youtube_embed" class="mt-6">
+            <h3 class="text-xl font-semibold text-[#16423c] mb-4">Trailer</h3>
+            <div class="aspect-video">
+              <iframe
+                :src="anime.youtube_embed + '?autoplay=1&mute=1'"
+                class="w-full h-full rounded-lg"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Добавляем отображение ошибок -->
-    <div v-if="errorMessage" class="fixed top-4 right-4 bg-red-500 text-white p-4 rounded shadow-lg">
+    <ImageModal :show="showImageModal" :src="selectedImage" @close="showImageModal = false" />
+
+    <!-- Error Message -->
+    <div
+      v-if="errorMessage"
+      class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg"
+    >
       {{ errorMessage }}
     </div>
   </div>
@@ -166,6 +165,8 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import ImageModal from '@/components/ImageModal.vue'
+import BaseButton from '@/components/BaseButton.vue'
+import StatusSelect from '@/components/StatusSelect.vue'
 import { AnimeStatus, type AnimeCreate } from '@/types/anime'
 import { animeApi, ApiError } from '@/utils/api'
 
@@ -324,7 +325,7 @@ const validateAnimeData = (data: Partial<AnimeCreate>): data is AnimeCreate => {
 const addToList = async () => {
   try {
     errorMessage.value = null
-    
+
     if (!anime.value) {
       throw new Error('Данные аниме не загружены')
     }
@@ -360,7 +361,7 @@ const addToList = async () => {
 const updateStatus = async (newStatus: AnimeStatus) => {
   try {
     errorMessage.value = null
-    
+
     if (!userEntry.value || !anime.value) {
       throw new Error('Запись не найдена')
     }
@@ -380,78 +381,3 @@ const updateStatus = async (newStatus: AnimeStatus) => {
   }
 }
 </script>
-
-<style scoped lang="scss">
-@media (max-width: 768px) {
-  #anime-top-info {
-    flex-direction: column !important;
-
-    .overview {
-      margin-left: 0 !important;
-      margin-top: 2rem;
-    }
-  }
-
-  .poster {
-    width: 200px !important;
-  }
-}
-
-.info-block {
-  display: flex;
-  flex-direction: column;
-
-  p:first-child {
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-  }
-
-  .category-name {
-    margin: 0;
-  }
-
-  .category-description {
-    margin: 0;
-    color: grey;
-  }
-}
-
-#poster-block {
-  margin-bottom: 1rem;
-
-  #poster {
-    cursor: pointer;
-    transition: transform 0.3s;
-
-    &:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
-    }
-  }
-}
-
-.overview {
-  flex: 1;
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-left: 2rem;
-
-  .anime-titles {
-    .title {
-      color: #ff69b4;
-      text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
-      margin: 0.5rem 0;
-      line-height: 70%;
-    }
-  }
-
-  .trailer {
-    margin-top: 40px;
-  }
-}
-
-.anime-detail {
-  min-height: 100vh;
-  padding: 2rem 0;
-}
-</style>

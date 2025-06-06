@@ -1,5 +1,6 @@
 export enum AnimeStatus {
-  WATCHED = "watched",
+  WATCHING = "watching",
+  DROPPED = "dropped",
   PLANNED = "planned",
   COMPLETED = "completed"
 }
@@ -24,4 +25,4 @@ export interface AnimeUpdate {
 
 export interface AnimeResponse extends AnimeCreate {
   id: number;
-} 
+}
